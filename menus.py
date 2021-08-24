@@ -42,18 +42,18 @@ class Menus:
 
     def dis_rank(self):
         # menu classement
-        players_list = sorted(self.T.player_infos, key=lambda k: k['rank'])
+        players_list = sorted(self.T.players, key=lambda k: k.rank, reverse=True)
         players_rank = []
         for i in players_list:
-            players_rank.append(str(i['rank']) + ' : ' + i['family_name'] + ', ' + i['name'])
+            players_rank.append(str(i.rank) + ' : ' + i.family_name + ', ' + i.name)
         rank_menu = SelectionMenu(players_rank, 'Center échecs', 'Classement')
         rank_menu.show()
 
     def dis_players(self):
-        players_list = sorted(self.T.player_infos, key=lambda k: k['family_name'])
+        players_list = sorted(self.T.players, key=lambda k: k.family_name)
         players_name = []
         for i in players_list:
-            players_name.append(i['family_name'] + ', ' + i['name'])
+            players_name.append(i.family_name + ', ' + i.name)
         players_menu = SelectionMenu(players_name, 'Center échecs', 'Joueurs')
         players_menu.show()
 

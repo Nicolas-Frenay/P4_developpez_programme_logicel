@@ -1,0 +1,74 @@
+[
+    {
+        "joueur": 1,
+        "family_name": "Dupont",
+        "name": "Ludovic",
+        "dob": "04/08/1987",
+        "sex": "H",
+        "rank": 1000,
+        "points": 1
+    },
+    {
+        "joueur": 2,
+        "family_name": "Durand",
+        "name": "Pauline",
+        "dob": "25/02/1984",
+        "sex": "F",
+        "rank": 845,
+        "points": 0.5
+    },
+    {
+        "joueur": 3,
+        "family_name": "Martin",
+        "name": "Charles",
+        "dob": "14/12/1991",
+        "sex": "H",
+        "rank": 1050,
+        "points": 0
+    },
+    {
+        "joueur": 4,
+        "family_name": "Abdeda\u00efm",
+        "name": "Samia",
+        "dob": "14/03/1987",
+        "sex": "F",
+        "rank": 1160,
+        "points": 1
+    },
+    {
+        "joueur": 5,
+        "family_name": "Doe",
+        "name": "John",
+        "dob": "06/06/1981",
+        "sex": "H",
+        "rank": 980,
+        "points": 0
+    },
+    {
+        "joueur": 6,
+        "family_name": "Latoure",
+        "name": "Germaine",
+        "dob": "25/04/1955",
+        "sex": "F",
+        "rank": 1200,
+        "points": 0.5
+    },
+    {
+        "joueur": 7,
+        "family_name": "Granger",
+        "name": "Elie",
+        "dob": "30/01/1982",
+        "sex": "H",
+        "rank": 800,
+        "points": 1
+    },
+    {
+        "joueur": 8,
+        "family_name": "Labille",
+        "name": "Elise",
+        "dob": "04/08/1995",
+        "sex": "F",
+        "rank": 1140,
+        "points": 0
+    }
+]
