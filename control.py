@@ -1,4 +1,5 @@
 import json
+from operator import attrgetter
 
 
 class Tournois:
@@ -25,9 +26,9 @@ class Tournois:
         self.turns = data['turns']
         f.close()
 
-        self.current_round = 1
         self.players = []
-        self.add_players()
+        self.round_generator = None
+        self.round = []
 
     def add_players(self, nombre_de_joueur=8):
         """
@@ -52,46 +53,20 @@ class Tournois:
         with open('joueurs.json') as f:
             data = json.load(f)
             for i in data:
-                self.players.append(Joueurs(i['joueur'], i['family_name'], i['name'], i['dob'], i['sex'], i['rank'],
+                self.players.append(Joueurs(i['family_name'], i['name'], i['dob'], i['sex'], i['rank'],
                                             i['points']))
         f.close()
-        self.first_round()
+        #
+        #
+        #
+        # TODO : temporaire, ne doit pas s'effectuer en cas de chargement de tournois
+        self.round_generator = Rounds(self.players)
+        self.round.append(self.round_generator.first_round())
 
-    def first_round(self):
-        """
-        tri des joueurs selon la methode Suisse, et creation des rounds dans une liste
-        """
-        # TODO : check si nombre joueurs impaire
-        start_round_list = []
-        players_list = sorted(self.players, key=lambda k: k.rank, reverse=True)
-        # TODO : /!\ attention, on trie les instances de joueurs, gérer l'affichage en fonction
-        for i in range(0, len(players_list) // 2):
-            start_round_list.append([players_list[i], players_list[i + len(players_list) // 2]])
-
-    def next_round(self):
-        """
-
-        :return:
-        """
-        # TODO : exceptions si joueurs se sont déjà rencontré
-        new_round = []
-        i = 0
-        tmp = sorted(self.players, key=lambda k: (k.points, k.rank), reverse=True)
-        while i < len(tmp):
-            new_round.append([tmp[i], tmp[i + 1]])
-            i += 2
-
-    def round_results(self, family_name):
-        """
-
-        :param family_name:
-        :return:
-        """
-
-
+    def save_tournament(self):
         return
 
-    def resume_tournois(self):
+    def resume_tournament(self):
         """
         *
         self.name = name
@@ -105,19 +80,49 @@ class Tournois:
         return
 
 
-# TODO : faire une classe round ?
-# class Round:
-#     def __init__(self, ):
+# TODO : timestamp pour les rounds = https://www.programiz.com/python-programming/datetime/current-datetime
+class Rounds:
+    def __init__(self, players_list):
+        self.players = players_list
+        self.round_number = 1
 
+        self.first_round()
+
+    def first_round(self):
+        """
+        tri des joueurs selon la methode Suisse, et creation des match du premier tour dans une liste
+        """
+        # TODO : check si nombre joueurs impaire
+        start_round_list = []
+        players_list = sorted(self.players, key=attrgetter('rank'), reverse=True)
+        for i in range(0, len(players_list) // 2):
+            start_round_list.append((players_list[i], players_list[i + len(players_list) // 2]))
+        return start_round_list
+
+    def next_round(self):
+        # TODO : exceptions si joueurs se sont déjà rencontré
+        new_round = []
+        i = 0
+        tmp = sorted(self.players, key=attrgetter('points', 'rank'), reverse=True)
+        while i < len(tmp):
+            new_round.append([tmp[i], tmp[i + 1]])
+            i += 2
+        self.round_number += 1
+        # TODO : terminer tournois et sauvegarder si self.round_number < 4
+
+    def round_results(self, players_list):
+        for i in players_list:
+            result = (input('Combien de points à maqué ' + i.name + ' ' + i.family_name + ' ? '))
+            result_float = result.replace(',', '.')
+            i.new_points(result_float)
 
 class Joueurs:
     """
 
     """
 
-    def __init__(self, joueur, family_name, name, dob, sex, rank, points=0):
+    def __init__(self, family_name, name, dob, sex, rank, points=0.):
         # TODO : check self.id(self), pour éviter un attribut inutile
-        self.joueur = joueur
         self.family_name = family_name
         self.name = name
         self.dob = dob
@@ -131,7 +136,8 @@ class Joueurs:
     def new_points(self, new_points):
         self.points = new_points
 
-
+#
 if __name__ == '__main__':
     T = Tournois()
-    T.next_round()
+    T.add_players()
+    T.round_generator.round_results(T.players)
