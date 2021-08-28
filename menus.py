@@ -43,7 +43,6 @@ class Menus:
         self.tournament()
 
     def tournament(self):
-        # TODO : affichage du round en cours
         """
         Method creating and displaying tournament menu.
         Each element of the menu are calling class method.
@@ -72,8 +71,7 @@ class Menus:
         tournament_menu.show()
 
     def enter_results(self):
-        match_players = []
-        current_round = self.T.rounds_list[self.T.current_round]
+        current_round = self.T.rounds_list[-1]
         for item in current_round:
             self.results_menu(item)
         self.T.enter_results()
@@ -89,12 +87,12 @@ class Menus:
         players_list.append('Match nul')
         result_menu = SelectionMenu.get_selection(players_list,
                                                   'Centre échecs',
-                                                  'Indiquez le vainqueur ou le match nul')
+                                                  'Indiquez le vainqueur '
+                                                  'ou le match nul')
 
         if result_menu < 3:
-            self.T.round_generator.match_results(players, result_menu,
-                                                 self.T.current_round)
-        # TODO : terminer tounrois au dernier tour
+            self.T.current_round.match_results(players, result_menu)
+        # TODO : terminer tournois au dernier tour
 
     def save_tournament(self):
         """
@@ -159,12 +157,14 @@ class Menus:
         sel = SelectionMenu.get_selection(players_name, 'Centre échecs',
                                           'Modification du classement')
 
-        if sel > 8:
+        if sel < 8:
             new_rank = int(input(
                 'Quel est le nouveau classement de ' + self.player_name_sort[
                     sel].name + ' ' + self.player_name_sort[
                     sel].family_name + ' ?'))
             self.player_name_sort[sel].new_rank(new_rank)
+        else:
+            pass
 
     def show_rounds(self, new_round=False):
         """
@@ -174,14 +174,13 @@ class Menus:
         When one round is selected, it called the round_menu method, which will
         display the matchs of that round.
         """
-        # TODO : implementer la visualisation pour les autres rounds
         list = self.T.rounds_list
         round_liste = []
         round_to_display = []
         displayed_round = ['Premier', 'Second', 'Troisième', 'Quatrième']
         rounds_sel = None
 
-        if new_round == False:
+        if not new_round:
             # Creating the displayed menu items
             for i in range(0, len(list)):
                 round_liste.append(displayed_round[i] + ' tours.')
@@ -191,7 +190,7 @@ class Menus:
             rounds_sel = -1
 
             # making the user input call the appropriate round menu
-        if rounds_sel > len(list):
+        if rounds_sel > len(list) - 1:
             pass
         else:
             for i in list[rounds_sel]:
@@ -201,7 +200,6 @@ class Menus:
 
             self.round_menu(round_to_display)
 
-
     def round_menu(self, round_show):
         """
         Method that display the matchs of the selected round in the menu of
@@ -209,7 +207,7 @@ class Menus:
         """
 
         rounds_menu = ConsoleMenu('Centre Echecs',
-                                  'Round ' + str(self.T.current_round+1))
+                                  self.T.current_round.name)
 
         for i in range(0, len(round_show)):
             tmp = MenuItem(round_show[i], menu=rounds_menu, should_exit=False)

@@ -1,5 +1,6 @@
 import json
 from operator import attrgetter
+from datetime import datetime
 
 
 class Tournois:
@@ -30,9 +31,13 @@ class Tournois:
         f.close()
 
         self.players = []
-        self.round_generator = None
         self.current_round = None
         self.rounds_list = []
+        self.rounds = [None]
+        self.round_number = 1
+
+    def create_round(self):
+        self.current_round = Rounds('Round ' + str(self.round_number))
 
     def add_players(self, nombre_de_joueur=8):
         """
@@ -67,9 +72,10 @@ class Tournois:
         #
         # TODO : temporaire, ne doit pas s'effectuer en cas de chargement de
         #  tournois (flag booléen en argument ?)
-        self.round_generator = Rounds(self.players)
-        self.current_round = 0
-        self.rounds_list.append(self.round_generator.first_round())
+        first_round = self.first_round()
+        self.rounds_list.append(first_round)
+        self.create_round()
+        self.current_round.matches(first_round)
 
     def save_tournament(self):
         return
@@ -88,19 +94,14 @@ class Tournois:
         return
 
     def enter_results(self):
-        self.current_round += 1
-        new_round = self.round_generator.next_round()
+
+        new_round = self.next_round()
         self.rounds_list.append(new_round)
-
-
-# TODO : timestamp pour les rounds =
-#  https://www.programiz.com/python-programming/datetime/current-datetime
-class Rounds:
-    def __init__(self, players_list):
-        self.players = players_list
-        self.rounds_list = []
-        self.results = [[], ]
-        self.first_round()
+        self.round_number += 1
+        self.current_round.time_stamp(end=True)
+        self.rounds.append(self.current_round)
+        self.create_round()
+        self.current_round.matches(new_round)
 
     def first_round(self):
         """
@@ -114,7 +115,6 @@ class Rounds:
         for i in range(0, len(players_list) // 2):
             start_round_list.append(
                 [players_list[i], players_list[i + len(players_list) // 2]])
-        self.rounds_list.append(start_round_list)
         return start_round_list
 
     def next_round(self):
@@ -126,28 +126,44 @@ class Rounds:
         while i < len(tmp):
             new_round.append([tmp[i], tmp[i + 1]])
             i += 2
-        self.rounds_list.append(new_round)
         return new_round
         # TODO : terminer tournois et sauvegarder si self.round_number < 4
 
-    # TODO : les resultat de chaque matche doivent etre un tuple
-    #  ([Joueur1, resultat], [Joueur2, resultat])
-    def match_results(self, players, index, current_round):
 
-        round_results = []
+class Rounds:
+    def __init__(self, name):
+        self.results = []
+        self.name = name
+        self.round_matches = []
+        self.time_start = None
+        self.time_end = None
+        self.time_stamp()
+
+    def time_stamp(self, end=False):
+        date = datetime.now()
+
+        if not end:
+            self.time_start = date.strftime("%d/%m/%Y %H:%M:%S")
+        else:
+            self.time_end = date.strftime("%d/%m/%Y %H:%M:%S")
+
+    def matches(self, matches):
+        self.round_matches.append(matches)
+
+    def match_results(self, players, index):
 
         if index == 0 or index == 1:
             players[index].new_points(1)
             p1 = [players[index].name + ' ' + players[index].family_name, 1]
             players.pop(index)
             p2 = [players[0].name + ' ' + players[0].family_name, 0]
-            self.results[current_round].append((p1, p2))
+            self.results.append((p1, p2))
         else:
             players[0].new_points(0.5)
             players[1].new_points(0.5)
             p1 = [players[0].name + ' ' + players[0].family_name, 0.5]
             p2 = [players[1].name + ' ' + players[1].family_name, 0.5]
-            self.results[current_round].append((p1, p2))
+            self.results.append((p1, p2))
 
 
 class Joueurs:
@@ -156,7 +172,6 @@ class Joueurs:
     """
 
     def __init__(self, family_name, name, dob, sex, rank, points=0.):
-        # TODO : check self.id(self), pour éviter un attribut inutile
         self.family_name = family_name
         self.name = name
         self.dob = dob
