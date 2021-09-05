@@ -1,6 +1,7 @@
 import json
 from operator import attrgetter
 from datetime import datetime
+from data_base import TournamentData
 
 
 class Tournois:
@@ -78,7 +79,31 @@ class Tournois:
         self.current_round.matches(first_round)
 
     def save_tournament(self):
+        # players = self.save_players()
+        tournament_save = TournamentData()
+        tournament_save.save_players(self.players)
         return
+
+
+
+    # def save_players(self):
+    #     serialized_players_list = []
+    #     for i in self.players:
+    #         # family_name, name, dob, sex, rank, points=0.
+    #         family_name = i.family_name
+    #         name = i.name
+    #         dob = i.dob
+    #         sex = i.sex
+    #         rank = i.rank
+    #         points = i.points
+    #         serialized_player = {'family_name': family_name, 'name': name,
+    #                              'dob': dob, 'sex': sex, 'rank': rank,
+    #                              'points': points}
+    #         serialized_players_list.append(serialized_player)
+    #     return serialized_players_list
+
+
+
 
     def resume_tournament(self):
         """
@@ -196,3 +221,8 @@ class Joueurs:
         self.dob = dob
         self.sex = sex
         self.rank = rank
+
+if __name__ == '__main__':
+    T = Tournois()
+    T.add_players()
+    T.save_tournament()

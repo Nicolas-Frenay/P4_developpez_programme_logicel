@@ -103,7 +103,6 @@ class Menus:
         else:
             pass
 
-
     def show_rounds(self, new_round=False):
         """
         Methode creating a menu that displays the rounds already created. At
