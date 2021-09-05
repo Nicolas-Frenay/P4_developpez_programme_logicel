@@ -79,31 +79,25 @@ class Tournois:
         self.current_round.matches(first_round)
 
     def save_tournament(self):
-        # players = self.save_players()
-        tournament_save = TournamentData()
+        tournament_save = TournamentData(self.name)
+
+        # saving players
         tournament_save.save_players(self.players)
-        return
 
-
-
-    # def save_players(self):
-    #     serialized_players_list = []
-    #     for i in self.players:
-    #         # family_name, name, dob, sex, rank, points=0.
-    #         family_name = i.family_name
-    #         name = i.name
-    #         dob = i.dob
-    #         sex = i.sex
-    #         rank = i.rank
-    #         points = i.points
-    #         serialized_player = {'family_name': family_name, 'name': name,
-    #                              'dob': dob, 'sex': sex, 'rank': rank,
-    #                              'points': points}
-    #         serialized_players_list.append(serialized_player)
-    #     return serialized_players_list
-
-
-
+        # saving tournament
+        tournament_infos = []
+        name = self.name
+        place = self.place
+        date_start = self.date_start
+        date_end = self.date_end
+        time = self.time
+        desc = self.desc
+        turns = self.turns
+        tournament_infos.append(
+            {'name': name, 'place': place, 'date_start': date_start,
+             'date_end': date_end, 'time': time, 'description': desc,
+             'turns': turns})
+        tournament_save.save_tournament(tournament_infos)
 
     def resume_tournament(self):
         """
@@ -221,6 +215,7 @@ class Joueurs:
         self.dob = dob
         self.sex = sex
         self.rank = rank
+
 
 if __name__ == '__main__':
     T = Tournois()
