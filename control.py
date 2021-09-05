@@ -34,7 +34,7 @@ class Tournois:
         self.players = []
         self.current_round = None
         self.rounds_list = []
-        self.rounds = [None]
+        self.rounds = []
         self.round_number = 1
 
     def create_round(self):
@@ -49,6 +49,7 @@ class Tournois:
         # TODO:-ajout dans TinyDB
 
         # for i in range(0, nombre_de_joueur):
+        #     id = i
         #     family_name = input('Nom de famille du joueur {} ?'.format(i))
         #     name = input('Prénom du joueur {} ?'.format(i))
         #     dob = input('Date de naissance du joueur {} (DD/MM/YYYY) ?'
@@ -56,7 +57,7 @@ class Tournois:
         #     sex = input('Sex du joueur {} (H/F) ?'.format(i))
         #     rank = int(input('Classement du joueur {} ?'.format(i)))
         #
-        #     self.players.append(Joueurs(family_name, name, dob, sex, rank))
+        #     self.players.append(Joueurs(id, family_name, name, dob, sex, rank))
         #
         # Temporaire pour les test, charge fichier json pour éviter de retaper
         # les 8 joueurs a chaque fois:
@@ -64,9 +65,8 @@ class Tournois:
             data = json.load(f)
             for i in data:
                 self.players.append(
-                    Joueurs(i['family_name'], i['name'], i['dob'], i['sex'],
-                            i['rank'],
-                            i['points']))
+                    Joueurs(i['id'], i['family_name'], i['name'], i['dob'],
+                            i['sex'], i['rank'], i['points']))
         f.close()
         #
         #
@@ -97,7 +97,22 @@ class Tournois:
             {'name': name, 'place': place, 'date_start': date_start,
              'date_end': date_end, 'time': time, 'description': desc,
              'turns': turns})
+        if self.rounds:
+            for i in self.rounds:
+                tournament_infos.append(self.save_rounds(i))
+
+        # TODO : serialiser round.matchs, c'est des instances Joueurs !!
         tournament_save.save_tournament(tournament_infos)
+
+    def save_rounds(self, round):
+        name = round.name
+        results = round.results
+        time_start = round.time_start
+        time_end = round.time_end
+        matchs = round.round_matches
+        round_to_save = {'name': name, 'results': results, 'matchs': matchs,
+                         'time_start': time_start, 'time_end': time_end}
+        return round_to_save
 
     def resume_tournament(self):
         """
@@ -113,7 +128,6 @@ class Tournois:
         return
 
     def enter_results(self):
-
         new_round = self.next_round()
         self.rounds_list.append(new_round)
         self.round_number += 1
@@ -167,21 +181,25 @@ class Rounds:
             self.time_end = date.strftime("%d/%m/%Y %H:%M:%S")
 
     def matches(self, matches):
-        self.round_matches.append(matches)
+        for i in matches:
+            p1 = i[0].id
+            p2 = i[1].id
+            self.round_matches.append(
+                {'id_player_1': i[0].id, 'id_player_2': i[1].id})
 
     def match_results(self, players, index):
 
         if index == 0 or index == 1:
             players[index].new_points(1)
-            p1 = [players[index].name + ' ' + players[index].family_name, 1]
+            p1 = ['joueur numéro ' + str(players[index].id), 1]
             players.pop(index)
-            p2 = [players[0].name + ' ' + players[0].family_name, 0]
+            p2 = ['joueur numéro ' + str(players[0].id), 0]
             self.results.append((p1, p2))
         else:
             players[0].new_points(0.5)
             players[1].new_points(0.5)
-            p1 = [players[0].name + ' ' + players[0].family_name, 0.5]
-            p2 = [players[1].name + ' ' + players[1].family_name, 0.5]
+            p1 = ['joueur numéro ' + str(players[0].id), 0.5]
+            p2 = ['joueur numéro ' + str(players[1].id), 0.5]
             self.results.append((p1, p2))
 
 
@@ -190,7 +208,8 @@ class Joueurs:
 
     """
 
-    def __init__(self, family_name, name, dob, sex, rank, points=0.):
+    def __init__(self, id, family_name, name, dob, sex, rank, points=0.):
+        self.id = id
         self.family_name = family_name
         self.name = name
         self.dob = dob
@@ -220,4 +239,4 @@ class Joueurs:
 if __name__ == '__main__':
     T = Tournois()
     T.add_players()
-    T.save_tournament()
+    print(T.current_round.round_matches)

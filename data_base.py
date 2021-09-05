@@ -5,7 +5,7 @@ from os import mkdir
 class TournamentData:
     def __init__(self, name):
         self.name = name.replace(' ', '_')
-        self.db = TinyDB('Centre_échecs - ' + name + '.json', indent=4)
+        self.db = TinyDB('Centre_échecs - ' + self.name + '.json', indent=4)
         self.players_table = self.db.table('Joueurs')
         self.tournaments_table = self.db.table('Tournois')
 
@@ -25,12 +25,12 @@ class TournamentData:
         self.players_table.truncate()
         self.players_table.insert_multiple(players_list)
 
-
     def serialize_player(self, player):
-        serialize_p = {'family_name': player.family_name, 'name': player.name,
-                       'dob': player.dob, 'sex': player.sex,
-                       'rank': player.rank, 'points': player.points}
+        serialize_p = {'id': player.id, 'family_name': player.family_name,
+                       'name': player.name, 'dob': player.dob,
+                       'sex': player.sex, 'rank': player.rank,
+                       'points': player.points}
         return serialize_p
 
-    def serialize_tournament(self, list):
-        return
+    # def serialize_tournament(self, list):
+    #     return

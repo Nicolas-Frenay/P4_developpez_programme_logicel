@@ -220,7 +220,7 @@ class Menus:
         Method for saving the tournament, player and rounds in a JSon database
         :return:
         """
-        return
+        self.T.save_tournament()
 
     def resume_t(self):
         """
