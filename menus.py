@@ -16,7 +16,10 @@ class Menus:
         family name, as this list is used multiple times in the program.
         """
         self.T = None
-        # self.R = None
+        self.player_name_sort = []
+        self.first_menu()
+
+    def first_menu(self):
         main_menu = ConsoleMenu('Centre échecs', 'Gestionnaire de tournois')
         new_tournament = FunctionItem('Nouveau tournois', self.new_t,
                                       menu=main_menu)
@@ -28,7 +31,6 @@ class Menus:
         main_menu.append_item(resume_tournament)
         main_menu.append_item(tournament_report)
         main_menu.show()
-        self.player_name_sort = []
 
     def new_t(self):
         """
@@ -49,86 +51,30 @@ class Menus:
         """
         tournament_menu = ConsoleMenu('Centre échecs',
                                       self.T.name + ' - ' + self.T.time)
+        view_players = FunctionItem('Voir les joueurs du tournois',
+                                    self.dis_players, menu=tournament_menu)
+        mod_player = FunctionItem('Modifier un joueur', self.mod_player,
+                                  menu=tournament_menu)
+        rounds = FunctionItem('Voire les tours du tournois', self.show_rounds,
+                              menu=tournament_menu)
+        enter_results = FunctionItem('Entrer les résultats du tour en cours',
+                                     self.enter_results, menu=tournament_menu)
         display_ranking = FunctionItem('Voire classement du tournois',
                                        self.dis_rank, menu=tournament_menu)
         rank_mod = FunctionItem('Modification classement', self.mod_rank_menu,
                                 menu=tournament_menu)
-        view_players = FunctionItem('Voir les joueurs du tournois',
-                                    self.dis_players, menu=tournament_menu)
-        rounds = FunctionItem('Voire les tours du tournois', self.show_rounds,
-                              menu=tournament_menu)
         save_tournament = FunctionItem('Sauvegarder le tournois',
                                        self.save_tournament,
                                        menu=tournament_menu)
-        enter_results = FunctionItem('Entrer les résultats du tour en cours',
-                                     self.enter_results, menu=tournament_menu)
+
         tournament_menu.append_item(view_players)
+        tournament_menu.append_item((mod_player))
         tournament_menu.append_item(rounds)
         tournament_menu.append_item(enter_results)
         tournament_menu.append_item(display_ranking)
         tournament_menu.append_item(rank_mod)
         tournament_menu.append_item(save_tournament)
         tournament_menu.show()
-
-    def enter_results(self):
-        current_round = self.T.rounds_list[-1]
-        for item in current_round:
-            self.results_menu(item)
-        self.T.enter_results()
-        self.show_rounds(True)
-
-    def results_menu(self, players):
-
-        players_list = []
-
-        for i in range(0, len(players)):
-            players_list.append(players[i].name + ' '
-                                + players[i].family_name)
-        players_list.append('Match nul')
-        result_menu = SelectionMenu.get_selection(players_list,
-                                                  'Centre échecs',
-                                                  'Indiquez le vainqueur '
-                                                  'ou le match nul')
-
-        if result_menu < 3:
-            self.T.current_round.match_results(players, result_menu)
-        # TODO : terminer tournois au dernier tour
-
-    def save_tournament(self):
-        """
-        Method for saving the tournament, player and rounds in a JSon database
-        :return:
-        """
-        return
-
-    def resume_t(self):
-        """
-        Method that will call a save tournament and load it
-        :return:
-        """
-        return
-
-    def report_t(self):
-        """
-        Methode that will generate a report of the tournament
-        :return:
-        """
-        return
-
-    def dis_rank(self):
-        """
-        Method displaying player sorted by rank.
-        """
-        players_list = sorted(self.T.players, key=attrgetter('rank'),
-                              reverse=True)
-        players_rank = []
-
-        for i in players_list:
-            players_rank.append(
-                str(i.rank) + ' : ' + i.family_name + ', ' + i.name)
-
-        rank_menu = SelectionMenu(players_rank, 'Center échecs', 'Classement')
-        rank_menu.show()
 
     def dis_players(self):
         """
@@ -142,29 +88,21 @@ class Menus:
         players_menu = SelectionMenu(players_name, 'Center échecs', 'Joueurs')
         players_menu.show()
 
-    def mod_rank_menu(self):
-        """
-        Method creating a menu to modify rank during tournament :
-        it displays players, then the user choose which one to edit, and it
-        change the rank attribut to the player instance, via the
-        Joueur.new_rank() methode.
-        """
+    def mod_player(self):
         players_name = []
 
         for i in self.player_name_sort:
             players_name.append(
                 i.family_name + ', ' + i.name + ' : ' + str(i.rank))
         sel = SelectionMenu.get_selection(players_name, 'Centre échecs',
-                                          'Modification du classement')
+                                          'Modification de joueur')
 
         if sel < 8:
-            new_rank = int(input(
-                'Quel est le nouveau classement de ' + self.player_name_sort[
-                    sel].name + ' ' + self.player_name_sort[
-                    sel].family_name + ' ?'))
-            self.player_name_sort[sel].new_rank(new_rank)
+            self.player_name_sort[sel].mod_player()
+            self.dis_players()
         else:
             pass
+
 
     def show_rounds(self, new_round=False):
         """
@@ -214,6 +152,90 @@ class Menus:
             rounds_menu.append_item(tmp)
 
         rounds_menu.show()
+
+    def enter_results(self):
+        current_round = self.T.rounds_list[-1]
+        for item in current_round:
+            self.results_menu(item)
+        self.T.enter_results()
+        self.show_rounds(True)
+
+    def results_menu(self, players):
+
+        players_list = []
+
+        for i in range(0, len(players)):
+            players_list.append(players[i].name + ' '
+                                + players[i].family_name)
+        players_list.append('Match nul')
+        result_menu = SelectionMenu.get_selection(players_list,
+                                                  'Centre échecs',
+                                                  'Indiquez le vainqueur '
+                                                  'ou le match nul')
+
+        if result_menu < 3:
+            self.T.current_round.match_results(players, result_menu)
+        # TODO : terminer tournois au dernier tour
+
+    def dis_rank(self):
+        """
+        Method displaying player sorted by rank.
+        """
+        players_list = sorted(self.T.players, key=attrgetter('rank'),
+                              reverse=True)
+        players_rank = []
+
+        for i in players_list:
+            players_rank.append(
+                str(i.rank) + ' : ' + i.family_name + ', ' + i.name)
+
+        rank_menu = SelectionMenu(players_rank, 'Center échecs', 'Classement')
+        rank_menu.show()
+
+    def mod_rank_menu(self):
+        """
+        Method creating a menu to modify rank during tournament :
+        it displays players, then the user choose which one to edit, and it
+        change the rank attribut to the player instance, via the
+        Joueur.new_rank() methode.
+        """
+        players_name = []
+
+        for i in self.player_name_sort:
+            players_name.append(
+                i.family_name + ', ' + i.name + ' : ' + str(i.rank))
+        sel = SelectionMenu.get_selection(players_name, 'Centre échecs',
+                                          'Modification du classement')
+
+        if sel < 8:
+            new_rank = int(input(
+                'Quel est le nouveau classement de ' + self.player_name_sort[
+                    sel].name + ' ' + self.player_name_sort[
+                    sel].family_name + ' ?'))
+            self.player_name_sort[sel].new_rank(new_rank)
+        else:
+            pass
+
+    def save_tournament(self):
+        """
+        Method for saving the tournament, player and rounds in a JSon database
+        :return:
+        """
+        return
+
+    def resume_t(self):
+        """
+        Method that will call a save tournament and load it
+        :return:
+        """
+        return
+
+    def report_t(self):
+        """
+        Methode that will generate a report of the tournament
+        :return:
+        """
+        return
 
 
 if __name__ == '__main__':

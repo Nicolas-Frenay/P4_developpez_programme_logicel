@@ -127,7 +127,7 @@ class Tournois:
             new_round.append([tmp[i], tmp[i + 1]])
             i += 2
         return new_round
-        # TODO : terminer tournois et sauvegarder si self.round_number < 4
+        # TODO : terminer tournois et sauvegarder si self.round_number == 4
 
 
 class Rounds:
@@ -184,3 +184,15 @@ class Joueurs:
 
     def new_points(self, new_points):
         self.points += new_points
+
+    def mod_player(self):
+        family_name = input('Nom de famille du joueur ?')
+        name = input('Prénom du joueur ?')
+        dob = input('Date de naissance du joueur (DD/MM/YYYY) ?')
+        sex = input('Sex du joueur (H/F) ?')
+        rank = int(input('Classement du joueur ?'))
+        self.family_name = family_name
+        self.name = name
+        self.dob = dob
+        self.sex = sex
+        self.rank = rank
