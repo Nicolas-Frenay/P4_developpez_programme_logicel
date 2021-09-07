@@ -2,6 +2,10 @@ from consolemenu import ConsoleMenu, SelectionMenu
 from consolemenu.items import FunctionItem, MenuItem
 from operator import attrgetter
 from control import Tournois
+from glob import glob
+
+
+# from os import chdir
 
 
 class Menus:
@@ -68,7 +72,7 @@ class Menus:
                                        menu=tournament_menu)
 
         tournament_menu.append_item(view_players)
-        tournament_menu.append_item((mod_player))
+        tournament_menu.append_item(mod_player)
         tournament_menu.append_item(rounds)
         tournament_menu.append_item(enter_results)
         tournament_menu.append_item(display_ranking)
@@ -100,6 +104,7 @@ class Menus:
         if sel < 8:
             self.player_name_sort[sel].mod_player()
             self.dis_players()
+            self.save_tournament()
         else:
             pass
 
@@ -157,7 +162,25 @@ class Menus:
         for item in current_round:
             self.results_menu(item)
         self.T.enter_results()
-        self.show_rounds(True)
+        if not self.T.tournament_finish:
+            self.show_rounds(True)
+        else:
+            self.end_tournament()
+
+    def end_tournament(self):
+        players_list = sorted(self.T.players, key=attrgetter('points'),
+                              reverse=True)
+        players_rank = []
+
+        for i in players_list:
+            players_rank.append(
+                i.family_name + ' ' + i.name + ' : ' + str(i.points))
+
+        end_menu = SelectionMenu(players_rank, 'Center échecs',
+                                 'Fin de tournois',
+                                 prologue_text='résultats finaux')
+        self.save_tournament()
+        end_menu.show()
 
     def results_menu(self, players):
 
@@ -212,6 +235,7 @@ class Menus:
                     sel].name + ' ' + self.player_name_sort[
                     sel].family_name + ' ?'))
             self.player_name_sort[sel].new_rank(new_rank)
+            self.save_tournament()
         else:
             pass
 
@@ -227,7 +251,19 @@ class Menus:
         Method that will call a save tournament and load it
         :return:
         """
-        return
+        tournament_list = []
+        # chdir('Tournois/')
+        for files in glob('Tournois/*.json'):
+            tournament_list.append(files[:-5])
+        sel = SelectionMenu.get_selection(tournament_list, 'Centre échecs',
+                                          "Reprise d'un tournois interrompu")
+        if sel < len(tournament_list):
+            self.T = Tournois(file=tournament_list[sel], resume=True)
+            self.player_name_sort = sorted(self.T.players,
+                                           key=attrgetter('family_name'))
+            self.tournament()
+        else:
+            pass
 
     def report_t(self):
         """
