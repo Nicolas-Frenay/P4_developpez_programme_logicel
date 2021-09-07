@@ -167,7 +167,6 @@ class Tournois:
         tri des joueurs selon la methode Suisse, et creation des matchs du
         premier tour dans une liste
         """
-        # TODO : check si nombre joueurs impaire
         start_round_list = []
         players_list = sorted(self.players, key=attrgetter('rank'),
                               reverse=True)
@@ -179,14 +178,21 @@ class Tournois:
     def next_round(self):
         # TODO : exceptions si joueurs se sont déjà rencontré
         new_round = []
-        i = 0
+        i = 1
         tmp = sorted(self.players, key=attrgetter('points', 'rank'),
                      reverse=True)
-        while i < len(tmp):
-            new_round.append([tmp[i], tmp[i + 1]])
-            i += 2
+
+        while tmp:
+            for tours in self.rounds_list:
+                if [tmp[0], tmp[i]] in tours:
+                    i = 2
+                if len(tmp) < 3:
+                    i = 1
+            new_round.append([tmp[0], tmp[i]])
+            tmp.pop(i)
+            tmp.pop(0)
+
         return new_round
-        # TODO : terminer tournois et sauvegarder si self.round_number == 4
 
 
 class Rounds:
@@ -230,8 +236,6 @@ class Rounds:
                 0].name + ' (id:' + str(players[0].ident) + ')', 0.5]
             p2 = [players[1].family_name + ', ' + players[
                 1].name + ' (id:' + str(players[1].ident) + ')', 0.5]
-            print(p1)
-            print(p2)
             self.results.append((p1, p2))
 
 
