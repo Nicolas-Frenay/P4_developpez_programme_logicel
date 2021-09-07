@@ -15,15 +15,20 @@ class Menus:
 
     def __init__(self):
         """
-        constructor creat a variable for Tournois instance, the main menu, and
-        an empty list for the players instances, which will be sorted by their
-        family name, as this list is used multiple times in the program.
+        constructor creat a variable for storing a Tournois, calling the main
+        menu, and an empty list for the players instances, which will be sorted
+         by their family name, as this list is used multiple times in the
+         program.
         """
         self.T = None
         self.player_name_sort = []
         self.first_menu()
 
     def first_menu(self):
+        """
+        Methode creating the first menu, from which the user can either create
+        a tournament, resume one, or do a report of a tournament.
+        """
         main_menu = ConsoleMenu('Centre échecs', 'Gestionnaire de tournois')
         new_tournament = FunctionItem('Nouveau tournois', self.new_t,
                                       menu=main_menu)
@@ -38,9 +43,10 @@ class Menus:
 
     def new_t(self):
         """
-        method calling a Tournois instance, which will store as a class
+        method calling a Tournois instance, which will stores it as a class
         attribute. It then call the add_players method for creating 8 Joueur
         instances, then sort them by name and store them in a class list.
+        Finally, it called the tournament menu.
         """
         self.T = Tournois()
         self.T.add_players()
@@ -93,6 +99,9 @@ class Menus:
         players_menu.show()
 
     def mod_player(self):
+        """
+        Method which display a menu to modify a player's infos.
+        """
         players_name = []
 
         for i in self.player_name_sort:
@@ -115,6 +124,8 @@ class Menus:
         will show accordingly.
         When one round is selected, it called the round_menu method, which will
         display the matchs of that round.
+        is the argument new_round is True, it will display the latest round
+        created.
         """
         list = self.T.rounds_list
         round_liste = []
@@ -123,17 +134,26 @@ class Menus:
         rounds_sel = None
 
         if not new_round:
-            # Creating the displayed menu items
+            # Creating the displayed menu items by creating a list of
+            # names-string for each rounds.
             for i in range(0, len(list)):
                 round_liste.append(displayed_round[i] + ' tours.')
+
+            # the get_selection method allows to get the user's choice
             rounds_sel = SelectionMenu.get_selection(round_liste,
                                                      'Centre Echecs', 'Rounds')
+
         else:
             rounds_sel = -1
 
-            # making the user input call the appropriate round menu
+            # making the user input call the appropriate round menu. If the
+            # user select the last item (the menu "exit"), it will passe.
         if rounds_sel > len(list) - 1:
             pass
+
+        # creating a list of the players playing against each other by
+        # calling there attributes, then sending this list to the round_menu
+        # method to display it.
         else:
             for i in list[rounds_sel]:
                 round_to_display.append(
@@ -158,16 +178,54 @@ class Menus:
         rounds_menu.show()
 
     def enter_results(self):
+        """
+        method that get each pair of players from the round, and pass them to
+        the result menu. then it called the enter_result method of the Tournois
+        class.
+        If the Tournament is finish (4 rounds played), it display the end menu.
+        Otherwise, it shows the next round's matchs.
+        """
         current_round = self.T.rounds_list[-1]
+
         for item in current_round:
             self.results_menu(item)
         self.T.enter_results()
+
+        # Checking if this is the last round of the tournament.
         if not self.T.tournament_finish:
             self.show_rounds(True)
         else:
             self.end_tournament()
 
+    def results_menu(self, players):
+        """
+        Methode that get a list of 2 players, and ask the user which one wons
+        (or if this was a draw).
+        The user selection is use to call the method match_results from the
+        Round class, that will store the results as tuples.
+        """
+        players_list = []
+        for i in range(0, len(players)):
+            players_list.append(players[i].name + ' '
+                                + players[i].family_name)
+
+        players_list.append('Match nul')
+        result_menu = SelectionMenu.get_selection(players_list,
+                                                  'Centre échecs',
+                                                  'Indiquez le vainqueur '
+                                                  'ou le match nul')
+
+        # This is to avoid an index error, since the result_menu variable is
+        # the user selection, and the last choice of the menu is the exit of
+        # the menu
+        if result_menu < 3:
+            self.T.current_round.match_results(players, result_menu)
+
     def end_tournament(self):
+        """
+        Simple menu, that display the final results of the tournaments.
+        (players sorted by their points)
+        """
         players_list = sorted(self.T.players, key=attrgetter('points'),
                               reverse=True)
         players_rank = []
@@ -181,23 +239,6 @@ class Menus:
                                  prologue_text='résultats finaux')
         self.save_tournament()
         end_menu.show()
-
-    def results_menu(self, players):
-
-        players_list = []
-
-        for i in range(0, len(players)):
-            players_list.append(players[i].name + ' '
-                                + players[i].family_name)
-        players_list.append('Match nul')
-        result_menu = SelectionMenu.get_selection(players_list,
-                                                  'Centre échecs',
-                                                  'Indiquez le vainqueur '
-                                                  'ou le match nul')
-
-        if result_menu < 3:
-            self.T.current_round.match_results(players, result_menu)
-        # TODO : terminer tournois au dernier tour
 
     def dis_rank(self):
         """
@@ -229,6 +270,8 @@ class Menus:
         sel = SelectionMenu.get_selection(players_name, 'Centre échecs',
                                           'Modification du classement')
 
+        # This is to avoid index error, since the last menu selection is the
+        # exit one.
         if sel < 8:
             new_rank = int(input(
                 'Quel est le nouveau classement de ' + self.player_name_sort[
@@ -242,21 +285,23 @@ class Menus:
     def save_tournament(self):
         """
         Method for saving the tournament, player and rounds in a JSon database
-        :return:
+        calling a Tournois method.
         """
         self.T.save_tournament()
 
     def resume_t(self):
         """
         Method that will call a save tournament and load it
-        :return:
+        It get a list of json files, then displays it.
         """
         tournament_list = []
-        # chdir('Tournois/')
         for files in glob('Tournois/*.json'):
             tournament_list.append(files[:-5])
         sel = SelectionMenu.get_selection(tournament_list, 'Centre échecs',
                                           "Reprise d'un tournois interrompu")
+
+        # This is to avoid index error, since the last menu selection is the
+        # exit one.
         if sel < len(tournament_list):
             self.T = Tournois(file=tournament_list[sel], resume=True)
             self.player_name_sort = sorted(self.T.players,
