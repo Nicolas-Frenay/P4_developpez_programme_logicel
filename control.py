@@ -138,6 +138,9 @@ class Tournois:
             for i in self.rounds:
                 tournament_infos.append(self.save_rounds(i))
 
+        # saving current round
+        tournament_infos.append(self.save_rounds(self.current_round))
+
         tournament_save.save_tournament(tournament_infos)
 
     @staticmethod
@@ -145,7 +148,6 @@ class Tournois:
         """
         static method that serialized Rounds instances
         """
-        # TODO : finir ca
 
         name = rounds.name
         results = rounds.results
@@ -162,9 +164,11 @@ class Tournois:
         it creat a tournament_data objet, then us it to load the tournaments
         and players infos.
         """
-        # TODO : finir ca
-        resumed_tournament = TournamentData(resume=True, file=file)
 
+        resumed_tournament = TournamentData(resume=True, file=file)
+        doc_in_table = 1
+
+        # getting players serialized infos, then calling new Joueurs instances.
         for player in resumed_tournament.players_table:
             ident = player['ident']
             family_name = player['family_name']
@@ -176,7 +180,9 @@ class Tournois:
             self.players.append(
                 Joueurs(ident, family_name, name, dob, sex, rank, points))
 
-        tournament_infos = resumed_tournament.tournaments_table.get(doc_id=1)
+        # getting tournament infos
+        tournament_infos = resumed_tournament.tournaments_table.get(
+            doc_id=doc_in_table)
         self.name = tournament_infos['name']
         self.place = tournament_infos['place']
         self.date_start = tournament_infos['date_start']
@@ -185,6 +191,41 @@ class Tournois:
         self.desc = tournament_infos['description']
         self.turns = tournament_infos['turns']
         self.round_number = tournament_infos['round_number']
+        doc_in_table += 1
+
+        # getting round infos, then calling new rounds instances
+        rounds_infos = resumed_tournament.tournaments_table.get(
+            doc_id=doc_in_table)
+
+        while rounds_infos != None:
+
+            temp = Rounds(rounds_infos['name'], resume=True)
+            temp.results = rounds_infos['results']
+            temp.saved_matches = rounds_infos['matchs']
+            temp.time_start = rounds_infos['time_start']
+            temp.time_end = rounds_infos['time_end']
+
+            # getting pairs of players, then storing them in tournament
+            # instance, and the proper round instance.
+            players_list = sorted(self.players, key=attrgetter('ident'))
+            matchs_list = []
+
+            for i in temp.saved_matches:
+                p1 = players_list[i['id_player_1']]
+                p2 = players_list[i['id_player_2']]
+                matchs_list.append([p1, p2])
+
+            temp.round_matches = matchs_list
+            self.rounds_list.append(matchs_list)
+
+            if temp.time_end == None:
+                self.current_round = temp
+            else:
+                self.rounds.append(temp)
+
+            doc_in_table += 1
+            rounds_infos = resumed_tournament.tournaments_table.get(
+                doc_id=doc_in_table)
 
     def enter_results(self):
         """
@@ -251,7 +292,7 @@ class Rounds:
     class that creats rounds
     """
 
-    def __init__(self, name, matches):
+    def __init__(self, name, matches=None, resume=False):
         """
         constructor creat a list for store the results, a name attribute, a
         list of the patch of that round (pairs of players), a list of matches
@@ -265,8 +306,9 @@ class Rounds:
         self.saved_matches = []
         self.time_start = None
         self.time_end = None
-        self.time_stamp()
-        self.matches()
+        if not resume:
+            self.time_stamp()
+            self.matches()
 
     def time_stamp(self, end=False):
         """
@@ -297,11 +339,17 @@ class Rounds:
         index and players are passed by the result_menu method of the Menus
         class.
         """
-        if index == 0 or index == 1:
+        if index == 0:
             players[index].new_points(1)
             p1 = [players[index].family_name + ', ' + players[
                 index].name + ' (id:' + str(players[index].ident) + ')', 1]
-            players.pop(index)
+            p2 = [players[1].family_name + ', ' + players[
+                1].name + ' (id:' + str(players[1].ident) + ')', 0]
+            self.results.append((p1, p2))
+        elif index == 1:
+            players[index].new_points(1)
+            p1 = [players[index].family_name + ', ' + players[
+                index].name + ' (id:' + str(players[index].ident) + ')', 1]
             p2 = [players[0].family_name + ', ' + players[
                 0].name + ' (id:' + str(players[0].ident) + ')', 0]
             self.results.append((p1, p2))
