@@ -160,7 +160,7 @@ class Menus:
                     i[0].name + ' ' + i[0].family_name + ' contre ' + i[
                         1].name + ' ' + i[1].family_name)
 
-            self.round_menu(round_to_display, rounds_sel+1)
+            self.round_menu(round_to_display, rounds_sel + 1)
 
     def round_menu(self, round_show, round_num):
         """
