@@ -6,7 +6,7 @@
         "dob": "04/08/1987",
         "sex": "H",
         "rank": 1000,
-        "points": 1
+        "points": 0
     },
     {
         "ident": 1,
@@ -15,7 +15,7 @@
         "dob": "25/02/1984",
         "sex": "F",
         "rank": 845,
-        "points": 0.5
+        "points": 0
     },
     {
         "ident": 2,
@@ -33,7 +33,7 @@
         "dob": "14/03/1987",
         "sex": "F",
         "rank": 1160,
-        "points": 1
+        "points": 0
     },
     {
         "ident": 4,
@@ -51,7 +51,7 @@
         "dob": "25/04/1955",
         "sex": "F",
         "rank": 1200,
-        "points": 0.5
+        "points": 0
     },
     {
         "ident": 6,
@@ -60,7 +60,7 @@
         "dob": "30/01/1982",
         "sex": "H",
         "rank": 800,
-        "points": 1
+        "points": 0
     },
     {
 

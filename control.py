@@ -231,15 +231,17 @@ class Tournois:
         # if the two first players already met, it puts #1 with #3.
         while tmp:
             for tours in self.rounds_list:
-                if [tmp[0], tmp[i]] in tours:
+                if [tmp[0], tmp[i]] in tours or [tmp[i], tmp[0]] in tours:
                     i = 2
+                    break
                 # this avoid index error. It can allows two players to meet
                 # twice in a tournament, but it's the swiss system.
-                if len(tmp) < 3:
-                    i = 1
+            if len(tmp) < 3:
+                i = 1
             new_round.append([tmp[0], tmp[i]])
             tmp.pop(i)
             tmp.pop(0)
+            i = 1
 
         return new_round
 
@@ -279,6 +281,10 @@ class Rounds:
             self.time_end = date.strftime("%d/%m/%Y %H:%M:%S")
 
     def matches(self):
+        """
+        Method that store the matchs as string with player's indent, to be
+        store in the database.
+        """
         for i in self.round_matches:
             self.saved_matches.append(
                 {'id_player_1': i[0].ident, 'id_player_2': i[1].ident})
@@ -314,7 +320,7 @@ class Joueurs:
     Class creating players for the tournament.
     """
 
-    def __init__(self, ident, family_name, name, dob, sex, rank, points=0.):
+    def __init__(self, ident, family_name, name, dob, sex, rank, points=0):
         """
         constructor creats infos attributes
         """
