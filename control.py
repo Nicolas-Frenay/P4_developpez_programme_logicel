@@ -24,7 +24,6 @@ class Tournois:
         """
         self.players = []
         self.current_round = None
-        self.rounds_list = []
         self.rounds = []
         self.round_number = 1
         self.tournament_finish = False
@@ -62,6 +61,13 @@ class Tournois:
             self.turns = data['turns']
             f.close()
 
+    def get_round_matchs(self):
+        match = []
+        for i in self.rounds:
+            match.append(i.round_matches)
+        match.append(self.current_round.round_matches)
+        return match
+
     def create_round(self, matches):
 
         """
@@ -75,8 +81,7 @@ class Tournois:
         """
         method asking the user for each players infos.
         then it called the first_round method to creat the first matchs, then
-        add it to rounds_list variable, and create a new round instance, and
-        passes it the matchs list.
+         create a new round instance, and passes it the matchs list.
         """
 
         # for i in range(0, nombre_de_joueur):
@@ -101,7 +106,6 @@ class Tournois:
         f.close()
 
         first_round = self.first_round()
-        self.rounds_list.append(first_round)
         self.create_round(first_round)
 
     def save_tournament(self):
@@ -142,7 +146,7 @@ class Tournois:
         tournament_infos.append(self.save_rounds(self.current_round))
 
         tournament_save.save_tournament(tournament_infos)
-# TODO : get history method pour appeler le bon objet round.
+
     @staticmethod
     def save_rounds(rounds):
         """
@@ -216,9 +220,8 @@ class Tournois:
                 matchs_list.append([p1, p2])
 
             temp.round_matches = matchs_list
-            self.rounds_list.append(matchs_list)
 
-            if temp.time_end is None:
+            if not temp.time_end:
                 self.current_round = temp
             else:
                 self.rounds.append(temp)
@@ -237,7 +240,6 @@ class Tournois:
         the rounds variable, and creat a new round.
         """
         new_round = self.next_round()
-        self.rounds_list.append(new_round)
         self.round_number += 1
         if self.round_number <= 4:
             self.current_round.time_stamp(end=True)
@@ -270,8 +272,9 @@ class Tournois:
                      reverse=True)
 
         # if the two first players already met, it puts #1 with #3.
+        past_rounds = self.get_round_matchs()
         while tmp:
-            for tours in self.rounds_list:
+            for tours in past_rounds:
                 if [tmp[0], tmp[i]] in tours or [tmp[i], tmp[0]] in tours:
                     i = 2
                     break

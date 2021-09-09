@@ -125,7 +125,7 @@ class Menus:
         is the argument new_round is True, it will display the latest round
         created.
         """
-        list = self.T.rounds_list
+        list = self.T.get_round_matchs()
         round_liste = []
         round_to_display = []
         displayed_round = ['Premier', 'Second', 'Troisième', 'Quatrième']
@@ -157,10 +157,14 @@ class Menus:
                 round_to_display.append(
                     i[0].name + ' ' + i[0].family_name + ' contre ' + i[
                         1].name + ' ' + i[1].family_name)
+            if rounds_sel == -1:
+                self.round_menu(round_to_display,
+                                round_num=self.T.round_number)
+            else:
+                self.round_menu(round_to_display, round_num=rounds_sel + 1)
 
-            self.round_menu(round_to_display, rounds_sel + 1)
-
-    def round_menu(self, round_show, round_num):
+    @staticmethod
+    def round_menu(round_show, round_num):
         """
         Method that display the matchs of the selected round in the menu of
         show_rounds method.
@@ -183,7 +187,7 @@ class Menus:
         If the Tournament is finish (4 rounds played), it display the end menu.
         Otherwise, it shows the next round's matchs.
         """
-        current_round = self.T.rounds_list[-1]
+        current_round = self.T.current_round.round_matches
 
         for item in current_round:
             self.results_menu(item)
