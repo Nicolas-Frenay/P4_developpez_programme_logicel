@@ -142,7 +142,7 @@ class Tournois:
         tournament_infos.append(self.save_rounds(self.current_round))
 
         tournament_save.save_tournament(tournament_infos)
-
+# TODO : get history method pour appeler le bon objet round.
     @staticmethod
     def save_rounds(rounds):
         """
@@ -197,7 +197,7 @@ class Tournois:
         rounds_infos = resumed_tournament.tournaments_table.get(
             doc_id=doc_in_table)
 
-        while rounds_infos != None:
+        while rounds_infos:
 
             temp = Rounds(rounds_infos['name'], resume=True)
             temp.results = rounds_infos['results']
@@ -218,7 +218,7 @@ class Tournois:
             temp.round_matches = matchs_list
             self.rounds_list.append(matchs_list)
 
-            if temp.time_end == None:
+            if temp.time_end is None:
                 self.current_round = temp
             else:
                 self.rounds.append(temp)

@@ -7,12 +7,10 @@ from glob import glob
 
 # from os import chdir
 
-
 class Menus:
     """
     Class that handle all the display of the programme
     """
-
     def __init__(self):
         """
         constructor creat a variable for storing a Tournois, calling the main
