@@ -33,8 +33,8 @@ class TournamentData:
                     indent=4)
             else:
                 self.db = TinyDB(
-                    'Tournois/Interrompus/Centre_échecs - ' + self.name + '.json',
-                    indent=4)
+                    'Tournois/Interrompus/Centre_échecs - '
+                    + self.name + '.json', indent=4)
             self.players_table = self.db.table('Joueurs')
             self.tournaments_table = self.db.table('Tournois')
         else:
@@ -66,6 +66,3 @@ class TournamentData:
         """
         self.players_table.truncate()
         self.players_table.insert_multiple(players)
-
-if __name__ == '__main__':
-    T = TournamentData(name='Toto')
