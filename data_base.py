@@ -1,4 +1,5 @@
 from tinydb import TinyDB
+from os import mkdir
 
 
 # from os import mkdir
@@ -9,17 +10,31 @@ class TournamentData:
     Class that is used to store tournament and players data.
     """
 
-    def __init__(self, name=None, resume=False, file=None):
+    def __init__(self, name=None, resume=False, file=None, finish=False):
         """
         constructor will setup a TinyDB object, and two tables to store players
         and tournament/rounds
         if parameter resume is Ture, it will creat empty attribute and called
         the resume_tournament method.
         """
+        try:
+            mkdir('Tournois/Terminés/')
+        except FileExistsError:
+            pass
+        try:
+            mkdir('Tournois/Interrompus/')
+        except FileExistsError:
+            pass
         if not resume:
             self.name = name.replace(' ', '_')
-            self.db = TinyDB('Tournois/Centre_échecs - ' + self.name + '.json',
-                             indent=4)
+            if finish:
+                self.db = TinyDB(
+                    'Tournois/Terminés/Centre_échecs - ' + self.name + '.json',
+                    indent=4)
+            else:
+                self.db = TinyDB(
+                    'Tournois/Interrompus/Centre_échecs - ' + self.name + '.json',
+                    indent=4)
             self.players_table = self.db.table('Joueurs')
             self.tournaments_table = self.db.table('Tournois')
         else:
@@ -51,3 +66,6 @@ class TournamentData:
         """
         self.players_table.truncate()
         self.players_table.insert_multiple(players)
+
+if __name__ == '__main__':
+    T = TournamentData(name='Toto')

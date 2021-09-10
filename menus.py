@@ -5,12 +5,11 @@ from control import Tournois
 from glob import glob
 
 
-# from os import chdir
-
 class Menus:
     """
     Class that handle all the display of the programme
     """
+
     def __init__(self):
         """
         constructor creat a variable for storing a Tournois, calling the main
@@ -297,15 +296,17 @@ class Menus:
         It get a list of json files, then displays it.
         """
         tournament_list = []
-        for files in glob('Tournois/*.json'):
-            tournament_list.append(files[:-5])
+        for files in glob('Tournois/Interrompus/*.json'):
+            tournament_list.append(files[21:-5])
         sel = SelectionMenu.get_selection(tournament_list, 'Centre échecs',
                                           "Reprise d'un tournois interrompu")
 
         # This is to avoid index error, since the last menu selection is the
         # exit one.
         if sel < len(tournament_list):
-            self.T = Tournois(file=tournament_list[sel], resume=True)
+            self.T = Tournois(
+                file='Tournois/Interrompus/' + tournament_list[sel],
+                resume=True)
             self.player_name_sort = sorted(self.T.players,
                                            key=attrgetter('family_name'))
             self.tournament()

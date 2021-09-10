@@ -37,29 +37,30 @@ class Tournois:
             self.desc = None
             self.turns = None
             self.resume_tournament(file)
-        else:
-            # self.name = input('Nom du tournois ?')
-            # self.place = input('Lieu du tournois ?')
-            # self.date_start = input('Date de debut du tournois? (DD/MM/YYYY)')
-            # self.date_end = input('Date de fin du tournois ? (DD/MM/YYYY)')
-            # self.time = input(
-            #     'Quelle est le format des match (bullet, blitz,coup rapide) ?')
-            # self.desc = input('Description du tournois ?')
-            # self.turns = input(
-            #     'En combien de tours se déroule le tournois ?(défaut : 4)') or 4
+        # else:
+        #     self.name = input('Nom du tournois ?')
+        #     self.place = input('Lieu du tournois ?')
+        #     self.date_start = input('Date de debut du tournois? (DD/MM/YYYY)')
+        #     self.date_end = input('Date de fin du tournois ? (DD/MM/YYYY)')
+        #     self.time = input(
+        #         'Quelle est le format des match (bullet, blitz,coup rapide) ?')
+        #     self.desc = input('Description du tournois ?')
+        #     self.turns = input(
+        #         'En combien de tours se déroule le tournois ?(défaut : 4)'
+        #     ) or 4
 
-            # bit of code for testing purposes, it loads tournament info from
-            # json file.
-            with open('tournois.json') as f:
-                data = json.load(f)
-            self.name = data['name']
-            self.place = data['place']
-            self.date_start = data['date_start']
-            self.date_end = data['date_end']
-            self.time = data['time']
-            self.desc = data['desc']
-            self.turns = data['turns']
-            f.close()
+        # bit of code for testing purposes, it loads tournament info from
+        # json file.
+        with open('tournois.json') as f:
+            data = json.load(f)
+        self.name = data['name']
+        self.place = data['place']
+        self.date_start = data['date_start']
+        self.date_end = data['date_end']
+        self.time = data['time']
+        self.desc = data['desc']
+        self.turns = data['turns']
+        f.close()
 
     def get_round_matchs(self):
         match = []
@@ -93,7 +94,8 @@ class Tournois:
         #     sex = input('Sex du joueur {} (H/F) ?'.format(i))
         #     rank = int(input('Classement du joueur {} ?'.format(i)))
         #
-        #     self.players.append(Joueurs(ident, family_name, name, dob, sex, rank))
+        #     self.players.append(
+        #         Joueurs(ident, family_name, name, dob, sex, rank))
 
         # bit of code for testing purposes, it loads players info from json
         # file.
@@ -114,7 +116,12 @@ class Tournois:
 
         """
         # creating a tournamentData object
-        tournament_save = TournamentData(self.name)
+        tournament_save = TournamentData(self.name,
+                                         finish=self.tournament_finish)
+
+        # if tournament is finish, put the end time stamp on current round.
+        if self.tournament_finish:
+            self.current_round.time_stamp(end=True)
 
         players_list = []
 
@@ -278,8 +285,13 @@ class Tournois:
                 if [tmp[0], tmp[i]] in tours or [tmp[i], tmp[0]] in tours:
                     i = 2
                     break
-                # this avoid index error. It can allows two players to meet
-                # twice in a tournament, but it's the swiss system.
+
+                # this avoid index error. During testing, it appears that with
+                # that algorithm, it start to make player met again after 4
+                # rounds. I suppose it's a math problem, and that with N
+                # players, it works only with N/2 -1 round...
+                # Since during chess tournament, it should be use only 3 times,
+                # it will work properly, but i let it just in case.
             if len(tmp) < 3:
                 i = 1
             new_round.append([tmp[0], tmp[i]])
