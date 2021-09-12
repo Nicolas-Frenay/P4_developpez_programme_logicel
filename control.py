@@ -1,7 +1,8 @@
 import json
-from operator import attrgetter
+from operator import attrgetter, itemgetter
 from datetime import datetime
 from data_base import TournamentData
+from glob import glob
 
 
 class Tournois:
@@ -37,30 +38,30 @@ class Tournois:
             self.desc = None
             self.turns = None
             self.resume_tournament(file)
-        # else:
-        #     self.name = input('Nom du tournois ?')
-        #     self.place = input('Lieu du tournois ?')
-        #     self.date_start = input('Date de debut du tournois? (DD/MM/YYYY)')
-        #     self.date_end = input('Date de fin du tournois ? (DD/MM/YYYY)')
-        #     self.time = input(
-        #         'Quelle est le format des match (bullet, blitz,coup rapide) ?')
-        #     self.desc = input('Description du tournois ?')
-        #     self.turns = input(
-        #         'En combien de tours se déroule le tournois ?(défaut : 4)'
-        #     ) or 4
+        else:
+            # self.name = input('Nom du tournois ?')
+            # self.place = input('Lieu du tournois ?')
+            # self.date_start = input('Date de debut du tournois? (DD/MM/YYYY)')
+            # self.date_end = input('Date de fin du tournois ? (DD/MM/YYYY)')
+            # self.time = input(
+            #     'Quelle est le format des match (bullet, blitz,coup rapide) ?')
+            # self.desc = input('Description du tournois ?')
+            # self.turns = input(
+            #     'En combien de tours se déroule le tournois ?(défaut : 4)'
+            # ) or 4
 
-        # bit of code for testing purposes, it loads tournament info from
-        # json file.
-        with open('tournois.json') as f:
-            data = json.load(f)
-        self.name = data['name']
-        self.place = data['place']
-        self.date_start = data['date_start']
-        self.date_end = data['date_end']
-        self.time = data['time']
-        self.desc = data['desc']
-        self.turns = data['turns']
-        f.close()
+            # bit of code for testing purposes, it loads tournament info from
+            # json file.
+            with open('tournois.json') as f:
+                data = json.load(f)
+            self.name = data['name']
+            self.place = data['place']
+            self.date_start = data['date_start']
+            self.date_end = data['date_end']
+            self.time = data['time']
+            self.desc = data['desc']
+            self.turns = data['turns']
+            f.close()
 
     def get_round_matchs(self):
         match = []
@@ -87,18 +88,18 @@ class Tournois:
 
         # for i in range(0, nombre_de_joueur):
         #     ident = i
-        #     family_name = input('Nom de famille du joueur {} ?'.format(i))
-        #     name = input('Prénom du joueur {} ?'.format(i))
+        #     family_name = input('Nom de famille du joueur {} ?'.format(i+1))
+        #     name = input('Prénom du joueur {} ?'.format(i+1))
         #     dob = input('Date de naissance du joueur {} (DD/MM/YYYY) ?'
-        #                 .format(i))
-        #     sex = input('Sex du joueur {} (H/F) ?'.format(i))
-        #     rank = int(input('Classement du joueur {} ?'.format(i)))
+        #                 .format(i+1))
+        #     sex = input('Sex du joueur {} (H/F) ?'.format(i+1))
+        #     rank = int(input('Classement du joueur {} ?'.format(i+1)))
         #
         #     self.players.append(
         #         Joueurs(ident, family_name, name, dob, sex, rank))
 
-        # bit of code for testing purposes, it loads players info from json
-        # file.
+        # # bit of code for testing purposes, it loads players info from json
+        # # file.
         with open('joueurs.json') as f:
             data = json.load(f)
             for i in data:
@@ -431,3 +432,53 @@ class Joueurs:
                        'sex': self.sex, 'rank': self.rank,
                        'points': self.points}
         return serialize_p
+
+
+class Report:
+    def __init__(self):
+        self.main_folder = 'Tournois/Terminés/'
+
+    def all_players(self):
+        tournament_list = []
+        actors_list = []
+        for files in glob('Tournois/Terminés/*.json'):
+            tournament_list.append(files[18:-5])
+
+        for file in tournament_list:
+            resumed_tournament = TournamentData(file=self.main_folder + file,
+                                                resume=True)
+
+            for player in resumed_tournament.players_table:
+                family_name = player['family_name']
+                name = player['name']
+                rank = player['rank']
+                player = {'family_name': family_name, 'name': name,
+                          'rank': rank}
+                actors_list.append(player)
+
+        actors_name = sorted(actors_list, key=itemgetter('family_name'))
+        actors_rank = sorted(actors_list, key=itemgetter('rank'), reverse=True)
+
+
+        print('Ensemble des joueurs enregistrés (par ordre alphabetique) : \n')
+        for actors in actors_name:
+            print(actors['family_name'] + ', ' + actors['name'])
+
+        print('\n-------------------\n')
+
+        print ('Ensemble des joueurs enregistrés (par classement) :\n')
+        for actors in actors_rank:
+            print(str(actors['rank']) + ' : ' + actors['family_name'] + ', ' +
+                  actors['name'])
+
+    def tournament_players(self):
+        return
+
+    def all_tournaments(self):
+        return
+
+    def tournament_rounds(self):
+        return
+
+    def tournament_matchs(self):
+        return

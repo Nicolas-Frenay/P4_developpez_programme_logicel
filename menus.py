@@ -1,7 +1,7 @@
 from consolemenu import ConsoleMenu, SelectionMenu
 from consolemenu.items import FunctionItem, MenuItem
 from operator import attrgetter
-from control import Tournois
+from control import Tournois, Report
 from glob import glob
 
 
@@ -20,6 +20,7 @@ class Menus:
         self.T = None
         self.player_name_sort = []
         self.first_menu()
+        self.report = None
 
     def first_menu(self):
         """
@@ -315,9 +316,33 @@ class Menus:
 
     def report_t(self):
         """
-        Methode that will generate a report of the tournament
-        :return:
+        Methode that will generate a menu to display a report
         """
+        # faire un menu qui permet de choisir entre :
+        # -liste de tout les joueurs ayant participés a un tournois, classés
+        # par ordre alphabetique ET par classement
+
+        # self.report.all_players()
+
+        # -liste des joueurs d'un tournois par ordre alpahbetique et de rank
+        # -liste de tout les tournois
+        # -liste des tours d'un tournois (juste les matchs)
+        # -list de tout les matchs d'un tournois (avec resultats)
+        self.report = Report()
+        report_menu = ConsoleMenu('Centre échecs', 'menu de rapport')
+        show_all_actors = FunctionItem('Voir tout les acteurs',
+                                       self.report.all_players,
+                                       menu=report_menu)
+        report_menu.append_item(show_all_actors)
+        report_menu.show()
+
+    def sel_tournament(self, players=False, rounds=False, matchs=False):
+        tournament_list = []
+        for files in glob('Tournois/Terminés/*.json'):
+            tournament_list.append(files[18:-5])
+        sel = SelectionMenu.get_selection(tournament_list, 'Centre échecs',
+                                          "Reprise d'un tournois interrompu")
+
         return
 
 
