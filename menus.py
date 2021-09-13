@@ -347,10 +347,14 @@ class Menus:
         show_t_rounds = FunctionItem('Voir les rounds d\'un tournois',
                                      self.sel_tournament, args=args_list[1])
 
+        show_t_results = FunctionItem('Voir les resultats d\' un tournois',
+                                      self.sel_tournament, args=args_list[2])
+
         report_menu.append_item(show_all_actors)
         report_menu.append_item(show_all_tournament)
         report_menu.append_item(show_all_t_players)
         report_menu.append_item(show_t_rounds)
+        report_menu.append_item(show_t_results)
         report_menu.show()
 
     def sel_tournament(self, players=False, rounds=False, matchs=False,
@@ -380,7 +384,7 @@ class Menus:
                 self.report.tournament_rounds(tournament_list[sel])
 
             elif matchs:
-                return
+                self.report.tournament_matchs(tournament_list[sel])
 
 
 if __name__ == '__main__':

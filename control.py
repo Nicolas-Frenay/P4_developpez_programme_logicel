@@ -473,6 +473,7 @@ class Report:
                 player = {'family_name': family_name, 'name': name,
                           'rank': rank}
                 actors_list.append(player)
+            del resumed_tournament
 
         # sorting players list by name and by rank
         actors_name = sorted(actors_list, key=itemgetter('family_name'))
@@ -491,8 +492,8 @@ class Report:
 
         # allow the program to wait for a user input to display the previous
         # menu
-        print('\n Appuyez sur <Entrée> pour retourner au menu.')
-        input()
+        input('\n Appuyez sur <Entrée> pour retourner au menu.')
+
 
     def tournament_players(self, file):
         """
@@ -511,11 +512,14 @@ class Report:
 
         # allow the program to wait for a user input to display the previous
         # menu
-        print('\n Appuyez sur <Entrée> pour retourner au menu.')
-        input()
+        input('\n Appuyez sur <Entrée> pour retourner au menu.')
         del sel_tournament
 
     def tournament_rounds(self, file):
+        """
+        method that display all rounds of a selected tournament, given by the
+        'file' parameter, given by the calling function
+        """
         sel_tournament = TournamentData(resume=True,
                                         file=self.main_folder + file)
         players = []
@@ -523,6 +527,8 @@ class Report:
         tournament_rounds = []
         round_number = 1
 
+        # getting players names and identifyer from the database, then storing
+        # them as dict in a list
         for player in sel_tournament.players_table:
             family_name = player['family_name']
             name = player['name']
@@ -536,6 +542,8 @@ class Report:
         rounds_infos = sel_tournament.tournaments_table.get(
             doc_id=doc_in_table)
 
+        # for each round in the tournament, getting the matchs' pairs, then
+        # storing them in a list, based on their identifyer
         while rounds_infos:
             round_matchs = []
             matchs = rounds_infos['matchs']
@@ -548,6 +556,7 @@ class Report:
             rounds_infos = sel_tournament.tournaments_table.get(
                 doc_id=doc_in_table)
 
+        # printing each matchs from each rounds.
         for rounds in tournament_rounds:
             print('\nRound ' + str(round_number))
             for i in rounds:
@@ -556,9 +565,43 @@ class Report:
                 print(p1 + ' - ' + p2)
             round_number += 1
 
-        print('\n Appuyez sur <Entrée> pour retourner au menu.')
-        input()
+        # allow the program to wait for a user input to display the previous
+        # menu
+        input('\n Appuyez sur <Entrée> pour retourner au menu.')
         del sel_tournament
 
-    def tournament_matchs(self):
-        return
+    def tournament_matchs(self, file):
+        sel_tournament = TournamentData(resume=True,
+                                        file=self.main_folder + file)
+
+        doc_in_table = 2
+        tournament_rounds = []
+        round_number = 1
+
+        rounds_infos = sel_tournament.tournaments_table.get(
+            doc_id=doc_in_table)
+
+        # for each round in the tournament, getting the results, then
+        # storing them in a list, based on their identifyer
+        while rounds_infos:
+            round_matchs = []
+            matchs = rounds_infos['results']
+            for i in matchs:
+                p1 = i[0][0][:-7] + ' : ' + str(i[0][1])
+                p2 = i[1][0][:-7] + ' : ' + str(i[1][1])
+                round_matchs.append([p1, p2])
+            tournament_rounds.append(round_matchs)
+            doc_in_table += 1
+            rounds_infos = sel_tournament.tournaments_table.get(
+                doc_id=doc_in_table)
+
+        # printing each matchs' results from each rounds.
+        for rounds in tournament_rounds:
+            print('\nRound ' + str(round_number))
+            for i in rounds:
+                print(i[0] + ' / ' + i[1])
+            round_number += 1
+
+
+        input('\n Appuyez sur <Entrée> pour retourner au menu.')
+        del sel_tournament
