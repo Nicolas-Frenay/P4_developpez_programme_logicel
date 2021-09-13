@@ -328,31 +328,59 @@ class Menus:
         # -liste des tours d'un tournois (juste les matchs)
         # -list de tout les matchs d'un tournois (avec resultats)
         self.report = Report()
-        args_list = [[True, False, False], [False, True, False],
-                     [False, False, True]]
+        args_list = [[True, False, False, False], [False, True, False, False],
+                     [False, False, True, False], [False, False, False, True]]
         report_menu = ConsoleMenu('Centre échecs', 'menu de rapport')
+
         show_all_actors = FunctionItem('Voir tout les acteurs',
                                        self.report.all_players,
                                        menu=report_menu)
+
+        show_all_tournament = FunctionItem('Voir tout les tournois términés',
+                                           self.sel_tournament,
+                                           args=args_list[3])
+
         show_all_T_players = FunctionItem(
             "Voir tout les joueurs d'un tournois",
             self.sel_tournament, args=args_list[0], menu=report_menu)
+
+        show_T_rounds = FunctionItem('Voir les rounds d\'un tournois',
+                                     self.sel_tournament, args=args_list[1])
+
         report_menu.append_item(show_all_actors)
-        report_menu.append_item((show_all_T_players))
+        report_menu.append_item(show_all_tournament)
+        report_menu.append_item(show_all_T_players)
+        report_menu.append_item(show_T_rounds)
         report_menu.show()
 
-    def sel_tournament(self, players=False, rounds=False, matchs=False):
+    def sel_tournament(self, players=False, rounds=False, matchs=False,
+                       tournaments=False):
         tournament_list = []
-        for files in glob('Tournois/Terminés/*.json'):
+        # folder = 'Tournois/Terminés/'
+
+        for files in glob(folder + '*.json'):
             tournament_list.append(files[18:-5])
-        sel = SelectionMenu.get_selection(tournament_list, 'Centre échecs',
-                                          ' ')
 
-        if players:
-            self.report.tournament_players(
-                'Tournois/Terminés/' + tournament_list[sel])
+        if tournaments:
+            menu = ConsoleMenu('Centre échecs', 'Liste de tournois términés')
+            for i in tournament_list:
+                tmp = MenuItem(i, menu=menu, should_exit=True)
+                menu.append_item(tmp)
+            menu.show()
 
-        return
+        else:
+            sel = SelectionMenu.get_selection(tournament_list, 'Centre échecs',
+                                              'Pour quel tournois souhaitez '
+                                              'vous générer un rapport ?')
+
+            if players:
+                self.report.tournament_players(tournament_list[sel])
+
+            elif rounds:
+                self.report.tournament_rounds(tournament_list[sel])
+
+            elif matchs:
+                return
 
 
 if __name__ == '__main__':

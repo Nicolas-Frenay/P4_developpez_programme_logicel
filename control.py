@@ -155,6 +155,8 @@ class Tournois:
 
         tournament_save.save_tournament(tournament_infos)
 
+        del tournament_save
+
     @staticmethod
     def save_rounds(rounds):
         """
@@ -168,6 +170,7 @@ class Tournois:
         matchs = rounds.saved_matches
         round_to_save = {'name': name, 'results': results, 'matchs': matchs,
                          'time_start': time_start, 'time_end': time_end}
+
         return round_to_save
 
     def resume_tournament(self, file):
@@ -210,7 +213,6 @@ class Tournois:
             doc_id=doc_in_table)
 
         while rounds_infos:
-
             temp = Rounds(rounds_infos['name'], resume=True)
             temp.results = rounds_infos['results']
             temp.saved_matches = rounds_infos['matchs']
@@ -237,6 +239,8 @@ class Tournois:
             doc_in_table += 1
             rounds_infos = resumed_tournament.tournaments_table.get(
                 doc_id=doc_in_table)
+
+        del resumed_tournament
 
     def enter_results(self):
         """
@@ -357,17 +361,17 @@ class Rounds:
         """
         if index == 0:
             players[index].new_points(1)
-            p1 = [players[index].family_name + ', ' + players[
-                index].name + ' (id:' + str(players[index].ident) + ')', 1]
+            p1 = [players[0].family_name + ', ' + players[
+                0].name + ' (id:' + str(players[0].ident) + ')', 1]
             p2 = [players[1].family_name + ', ' + players[
                 1].name + ' (id:' + str(players[1].ident) + ')', 0]
             self.results.append((p1, p2))
         elif index == 1:
             players[index].new_points(1)
-            p1 = [players[index].family_name + ', ' + players[
-                index].name + ' (id:' + str(players[index].ident) + ')', 1]
-            p2 = [players[0].family_name + ', ' + players[
+            p1 = [players[0].family_name + ', ' + players[
                 0].name + ' (id:' + str(players[0].ident) + ')', 0]
+            p2 = [players[1].family_name + ', ' + players[
+                1].name + ' (id:' + str(players[1].ident) + ')', 1]
             self.results.append((p1, p2))
         else:
             players[0].new_points(0.5)
@@ -438,6 +442,7 @@ class Report:
     """
     Create a Report objet to display tournaments reports.
     """
+
     def __init__(self):
         # setting the main folder
         self.main_folder = 'Tournois/Terminés/'
@@ -451,11 +456,11 @@ class Report:
         tournament_list = []
         actors_list = []
 
-        #geting the list of stored finish tournaments
+        # geting the list of stored finish tournaments
         for files in glob('Tournois/Terminés/*.json'):
             tournament_list.append(files[18:-5])
 
-        #looping through each stored tournaments to extract players list, then
+        # looping through each stored tournaments to extract players list, then
         # adding them in actors_list as dictionaries
         for file in tournament_list:
             resumed_tournament = TournamentData(file=self.main_folder + file,
@@ -479,7 +484,7 @@ class Report:
 
         print('\n-------------------\n')
 
-        print ('Ensemble des joueurs enregistrés (par classement) :\n')
+        print('Ensemble des joueurs enregistrés (par classement) :\n')
         for actors in actors_rank:
             print(str(actors['rank']) + ' : ' + actors['family_name'] + ', ' +
                   actors['name'])
@@ -494,11 +499,12 @@ class Report:
         Method that display the list of player of a selected tournament, send
         as the 'file' parameter, by the  calling function.
         """
-        resumed_tournament = TournamentData(resume=True, file=file)
+        sel_tournament = TournamentData(resume=True,
+                                        file=self.main_folder + file)
 
         print('Joueurs du tournois ' + file[18:] + ' :\n')
         # getting players serialized infos
-        for player in resumed_tournament.players_table:
+        for player in sel_tournament.players_table:
             family_name = player['family_name']
             name = player['name']
             print(family_name + ', ' + name)
@@ -507,13 +513,52 @@ class Report:
         # menu
         print('\n Appuyez sur <Entrée> pour retourner au menu.')
         input()
+        del sel_tournament
 
+    def tournament_rounds(self, file):
+        sel_tournament = TournamentData(resume=True,
+                                        file=self.main_folder + file)
+        players = []
+        doc_in_table = 2
+        tournament_rounds = []
+        round_number = 1
 
-    def all_tournaments(self):
-        return
+        for player in sel_tournament.players_table:
+            family_name = player['family_name']
+            name = player['name']
+            ident = player['ident']
+            player = {'family_name': family_name, 'name': name,
+                      'ident': ident}
+            players.append(player)
 
-    def tournament_rounds(self):
-        return
+        players_sorted = sorted(players, key=itemgetter('ident'))
+
+        rounds_infos = sel_tournament.tournaments_table.get(
+            doc_id=doc_in_table)
+
+        while rounds_infos:
+            round_matchs = []
+            matchs = rounds_infos['matchs']
+            for i in matchs:
+                p1 = players_sorted[i['id_player_1']]
+                p2 = players_sorted[i['id_player_2']]
+                round_matchs.append([p1, p2])
+            tournament_rounds.append(round_matchs)
+            doc_in_table += 1
+            rounds_infos = sel_tournament.tournaments_table.get(
+                doc_id=doc_in_table)
+
+        for rounds in tournament_rounds:
+            print('\nRound ' + str(round_number))
+            for i in rounds:
+                p1 = i[0]['family_name'] + ', ' + i[0]['name']
+                p2 = i[1]['family_name'] + ', ' + i[1]['name']
+                print(p1 + ' - ' + p2)
+            round_number += 1
+
+        print('\n Appuyez sur <Entrée> pour retourner au menu.')
+        input()
+        del sel_tournament
 
     def tournament_matchs(self):
         return
