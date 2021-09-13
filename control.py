@@ -435,15 +435,28 @@ class Joueurs:
 
 
 class Report:
+    """
+    Create a Report objet to display tournaments reports.
+    """
     def __init__(self):
+        # setting the main folder
         self.main_folder = 'Tournois/Terminés/'
 
     def all_players(self):
+        """
+        method that will print all players that have played in stored
+        tournaments
+        """
+
         tournament_list = []
         actors_list = []
+
+        #geting the list of stored finish tournaments
         for files in glob('Tournois/Terminés/*.json'):
             tournament_list.append(files[18:-5])
 
+        #looping through each stored tournaments to extract players list, then
+        # adding them in actors_list as dictionaries
         for file in tournament_list:
             resumed_tournament = TournamentData(file=self.main_folder + file,
                                                 resume=True)
@@ -456,6 +469,7 @@ class Report:
                           'rank': rank}
                 actors_list.append(player)
 
+        # sorting players list by name and by rank
         actors_name = sorted(actors_list, key=itemgetter('family_name'))
         actors_rank = sorted(actors_list, key=itemgetter('rank'), reverse=True)
 
@@ -470,6 +484,9 @@ class Report:
         for actors in actors_rank:
             print(str(actors['rank']) + ' : ' + actors['family_name'] + ', ' +
                   actors['name'])
+
+        print('\n Appuyez sur <Entrée> pour retourner au menu.')
+        input()
 
     def tournament_players(self):
         return
