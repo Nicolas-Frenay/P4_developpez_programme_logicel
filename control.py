@@ -473,7 +473,6 @@ class Report:
         actors_name = sorted(actors_list, key=itemgetter('family_name'))
         actors_rank = sorted(actors_list, key=itemgetter('rank'), reverse=True)
 
-
         print('Ensemble des joueurs enregistrés (par ordre alphabetique) : \n')
         for actors in actors_name:
             print(actors['family_name'] + ', ' + actors['name'])
@@ -485,11 +484,30 @@ class Report:
             print(str(actors['rank']) + ' : ' + actors['family_name'] + ', ' +
                   actors['name'])
 
+        # allow the program to wait for a user input to display the previous
+        # menu
         print('\n Appuyez sur <Entrée> pour retourner au menu.')
         input()
 
-    def tournament_players(self):
-        return
+    def tournament_players(self, file):
+        """
+        Method that display the list of player of a selected tournament, send
+        as the 'file' parameter, by the  calling function.
+        """
+        resumed_tournament = TournamentData(resume=True, file=file)
+
+        print('Joueurs du tournois ' + file[18:] + ' :\n')
+        # getting players serialized infos
+        for player in resumed_tournament.players_table:
+            family_name = player['family_name']
+            name = player['name']
+            print(family_name + ', ' + name)
+
+        # allow the program to wait for a user input to display the previous
+        # menu
+        print('\n Appuyez sur <Entrée> pour retourner au menu.')
+        input()
+
 
     def all_tournaments(self):
         return

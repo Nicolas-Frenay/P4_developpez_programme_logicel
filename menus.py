@@ -324,16 +324,21 @@ class Menus:
 
         # self.report.all_players()
 
-        # -liste des joueurs d'un tournois par ordre alpahbetique et de rank
         # -liste de tout les tournois
         # -liste des tours d'un tournois (juste les matchs)
         # -list de tout les matchs d'un tournois (avec resultats)
         self.report = Report()
+        args_list = [[True, False, False], [False, True, False],
+                     [False, False, True]]
         report_menu = ConsoleMenu('Centre échecs', 'menu de rapport')
         show_all_actors = FunctionItem('Voir tout les acteurs',
                                        self.report.all_players,
                                        menu=report_menu)
+        show_all_T_players = FunctionItem(
+            "Voir tout les joueurs d'un tournois",
+            self.sel_tournament, args=args_list[0], menu=report_menu)
         report_menu.append_item(show_all_actors)
+        report_menu.append_item((show_all_T_players))
         report_menu.show()
 
     def sel_tournament(self, players=False, rounds=False, matchs=False):
@@ -341,7 +346,11 @@ class Menus:
         for files in glob('Tournois/Terminés/*.json'):
             tournament_list.append(files[18:-5])
         sel = SelectionMenu.get_selection(tournament_list, 'Centre échecs',
-                                          "Reprise d'un tournois interrompu")
+                                          ' ')
+
+        if players:
+            self.report.tournament_players(
+                'Tournois/Terminés/' + tournament_list[sel])
 
         return
 
