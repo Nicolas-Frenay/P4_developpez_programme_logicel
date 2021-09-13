@@ -340,23 +340,23 @@ class Menus:
                                            self.sel_tournament,
                                            args=args_list[3])
 
-        show_all_T_players = FunctionItem(
+        show_all_t_players = FunctionItem(
             "Voir tout les joueurs d'un tournois",
             self.sel_tournament, args=args_list[0], menu=report_menu)
 
-        show_T_rounds = FunctionItem('Voir les rounds d\'un tournois',
+        show_t_rounds = FunctionItem('Voir les rounds d\'un tournois',
                                      self.sel_tournament, args=args_list[1])
 
         report_menu.append_item(show_all_actors)
         report_menu.append_item(show_all_tournament)
-        report_menu.append_item(show_all_T_players)
-        report_menu.append_item(show_T_rounds)
+        report_menu.append_item(show_all_t_players)
+        report_menu.append_item(show_t_rounds)
         report_menu.show()
 
     def sel_tournament(self, players=False, rounds=False, matchs=False,
                        tournaments=False):
         tournament_list = []
-        # folder = 'Tournois/Terminés/'
+        folder = 'Tournois/Terminés/'
 
         for files in glob(folder + '*.json'):
             tournament_list.append(files[18:-5])
