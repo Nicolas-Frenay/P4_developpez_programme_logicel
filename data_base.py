@@ -2,9 +2,6 @@ from tinydb import TinyDB
 from os import mkdir
 
 
-# from os import mkdir
-
-
 class TournamentData:
     """
     Class that is used to store tournament and players data.
