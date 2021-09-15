@@ -2,9 +2,6 @@ from tinydb import TinyDB
 from os import mkdir
 
 
-# from os import mkdir
-
-
 class TournamentData:
     """
     Class that is used to store tournament and players data.
@@ -14,7 +11,7 @@ class TournamentData:
         """
         constructor will setup a TinyDB object, and two tables to store players
         and tournament/rounds
-        if parameter resume is Ture, it will creat empty attribute and called
+        if parameter resume is True, it will creat empty attribute and called
         the resume_tournament method.
         """
         try:
