@@ -494,7 +494,6 @@ class Report:
         # menu
         input('\n Appuyez sur <Entrée> pour retourner au menu.')
 
-
     def tournament_players(self, file):
         """
         Method that display the list of player of a selected tournament, send
