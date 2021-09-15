@@ -7,25 +7,27 @@ from glob import glob
 
 class Menus:
     """
-    Class that handle all the display of the programme
+    Class that handle all the display of the program
     """
 
     def __init__(self):
         """
-        constructor creat a variable for storing a Tournois instance, calling
-         the main  menu, and an empty list for the players instances, which
-         will be sorted by their family name, as this list is used multiple
-         times in the program.
+         Aims : constructor : Set base class attributes : two empty variables
+         to store a Tournament object and a report object, an empty list to
+         store players instances sorted by name, and display the first menu.
+         params : None
+         return : None
         """
         self.T = None
+        self.report = None
         self.player_name_sort = []
         self.first_menu()
-        self.report = None
 
     def first_menu(self):
         """
-        Methode creating the first menu, from which the user can either create
-        a tournament, resume one, or do a report of a tournament.
+        Aims: Creating the first menu
+        params : None
+        Return: None
         """
         main_menu = ConsoleMenu('Centre échecs', 'Gestionnaire de tournois')
         new_tournament = FunctionItem('Nouveau tournois', self.new_t,
@@ -41,10 +43,10 @@ class Menus:
 
     def new_t(self):
         """
-        method calling a Tournois instance, which will stores it as a class
-        attribute. It then call the add_players method for creating 8 Joueurs
-        instances, then sort them by name and store them in a class list.
-        Finally, it called the tournament menu.
+        Aims : Creating a new Tournois instanc, then calling add_players
+        method, and sorting players instance by name in a list.
+        Params : None
+        Return : None
         """
         self.T = Tournois()
         self.T.add_players()
@@ -54,8 +56,9 @@ class Menus:
 
     def tournament(self):
         """
-        Method creating and displaying tournament menu.
-        Each element of the menu are calling class method.
+        Aims : creating and displaying tournament menu.
+        Params : None
+        Return : None
         """
         tournament_menu = ConsoleMenu('Centre échecs',
                                       self.T.name + ' - ' + self.T.time)
@@ -86,7 +89,9 @@ class Menus:
 
     def dis_players(self):
         """
-        Method displaying players sorted by family name.
+        Aims : displaying players sorted by family name.
+        Params: None
+        Return : None
         """
         players_name = []
 
@@ -98,7 +103,9 @@ class Menus:
 
     def mod_player(self):
         """
-        Method which display a menu to modify a player's infos.
+        Aims : Displaying the modify players menu
+        Params : None
+        Return : None
         """
         players_name = []
 
@@ -117,13 +124,12 @@ class Menus:
 
     def show_rounds(self, new_round=False):
         """
-        Methode creating a menu that displays the rounds already created. At
-        first it show only the first, then when the others are generated, they
-        will show accordingly.
-        When one round is selected, it called the round_menu method, which will
-        display the matchs of that round.
-        is the argument new_round is True, it will display the latest round
-        created.
+        Aims : Displaying rounds menu, the user can select one to display
+        matchs of that round.
+        Params :
+        -new_round : Boolean, if True, will display the last created
+        round (which is the current one.)
+        Return: None
         """
         list = self.T.get_round_matchs()
         round_liste = []
@@ -131,7 +137,9 @@ class Menus:
         displayed_round = ['Premier', 'Second', 'Troisième', 'Quatrième']
         rounds_sel = None
 
-        if not new_round:
+        if new_round:
+            rounds_sel = -1
+        else:
             # Creating the displayed menu items by creating a list of
             # names-string for each rounds.
             for i in range(0, len(list)):
@@ -140,9 +148,6 @@ class Menus:
             # the get_selection method allows to get the user's choice
             rounds_sel = SelectionMenu.get_selection(round_liste,
                                                      'Centre Echecs', 'Rounds')
-
-        else:
-            rounds_sel = -1
 
             # making the user input call the appropriate round menu. If the
             # user select the last item (the menu "exit"), it will passe.
@@ -166,8 +171,12 @@ class Menus:
     @staticmethod
     def round_menu(round_show, round_num):
         """
-        Method that display the matchs of the selected round in the menu of
-        show_rounds method.
+        Aims : Displaying matchs of the selected round
+        Params :
+        -round_show : list of matchs (pairs of players instance)
+        -round_number : Current round number
+        Return : None
+
         """
 
         rounds_menu = ConsoleMenu('Centre Echecs',
@@ -181,11 +190,10 @@ class Menus:
 
     def enter_results(self):
         """
-        method that get each pair of players from the round, and pass them to
-        the result menu. then it called the enter_result method of the Tournois
-        class.
-        If the Tournament is finish (4 rounds played), it display the end menu.
-        Otherwise, it shows the next round's matchs.
+        Aims : send each pair of players in result_menu, to register match's
+        winner. If tournament is finish after that, call end_tournament()
+        Params : None
+        Return : None
         """
         current_round = self.T.current_round.round_matches
 
@@ -201,10 +209,11 @@ class Menus:
 
     def results_menu(self, players):
         """
-        Methode that get a list of 2 players, and ask the user which one wons
-        (or if this was a draw).
-        The user selection is use to call the method match_results from the
-        Round class, that will store the results as tuples.
+        Aims : Select the winner of each matchs (pair of players), and send it
+        to the match_results method of the Round Class.
+        params :
+        -players : pair of players instance sent by the enter_results method.
+        Return : None
         """
         players_list = []
         for i in range(0, len(players)):
@@ -225,8 +234,10 @@ class Menus:
 
     def end_tournament(self):
         """
-        Simple menu, that display the final results of the tournaments.
-        (players sorted by their points)
+        Aims : display the final results of the tournaments. (players sorted
+        by their points)
+        Params : None
+        Return : None
         """
         self.save_tournament()
         players_list = sorted(self.T.players, key=attrgetter('points'),
@@ -244,7 +255,9 @@ class Menus:
 
     def dis_rank(self):
         """
-        Method displaying player sorted by rank.
+        Aims : displaying player sorted by rank.
+        params : None
+        Return : None
         """
         players_list = sorted(self.T.players, key=attrgetter('rank'),
                               reverse=True)
@@ -259,10 +272,10 @@ class Menus:
 
     def mod_rank_menu(self):
         """
-        Method creating a menu to modify rank during tournament :
-        it displays players, then the user choose which one to edit, and it
-        change the rank attribut to the player instance, via the
-        Joueur.new_rank() methode.
+        Aims : Display menu to change a player's rank via the Joueur.new_rank()
+        methode.
+        Params : None
+        Return : None
         """
         players_name = []
 
@@ -286,15 +299,18 @@ class Menus:
 
     def save_tournament(self):
         """
-        Method for saving the tournament, player and rounds in a JSon database
-        calling a Tournois method.
+        Aims : saving the tournament, player and rounds in a JSon database
+        params : None
+        return : None
         """
         self.T.save_tournament()
 
     def resume_t(self):
         """
-        Method that will call a save tournament and load it
-        It get a list of json files, then displays it.
+        Aims : display a list of un-finish tournament to choose from. The
+        selected tournament will be load from data base.
+        params : None
+        returns : None
         """
         tournament_list = []
         for files in glob('Tournois/Interrompus/*.json'):
@@ -316,7 +332,9 @@ class Menus:
 
     def report_t(self):
         """
-        Methode that will generate a menu to display a report
+        Aims : generate a menu to choose a type of report
+        params : None
+        return : None
         """
         self.report = Report()
 
@@ -360,6 +378,18 @@ class Menus:
 
         If the user choose to see all saved tournaments, it will just displays
         them, without calling a Report object.
+        Aims : display lists of finished tournament to choose from.
+        Params :
+        -players : boolean, if True, will display all players from all saved
+        tournaments.
+        -rounds : boolean, if true, will display a list of all finished
+        tournaments, the user-selected one will call tournament_round method
+        of Report class.
+        -matchs : boolean, if true, will display a list of all finished
+        tournaments, the user-selected one will call tournament_matchs method
+        of Report class.
+        -tournament : boolean, if true, will show all finished tournaments in
+        data base.
         """
         tournament_list = []
         folder = 'Tournois/Terminés/'
