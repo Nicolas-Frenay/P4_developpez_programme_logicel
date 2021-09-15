@@ -50,12 +50,12 @@ class TournamentData:
         self.players_table = self.db.table('Joueurs')
         self.tournaments_table = self.db.table('Tournois')
 
-    def save_tournament(self, list):
+    def save_tournament(self, tournament_data):
         """
         methode that will store tournament in data base.
         """
         self.tournaments_table.truncate()
-        self.tournaments_table.insert_multiple(list)
+        self.tournaments_table.insert_multiple(tournament_data)
 
     def save_players(self, players):
         """
