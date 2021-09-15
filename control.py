@@ -40,31 +40,18 @@ class Tournois:
             self.turns = None
             self.resume_tournament(file)
         else:
-            # self.name = input('Nom du tournois ?')
-            # self.place = input('Lieu du tournois ?')
-            # self.date_start = input('Date de debut du tournois? '
-            #                         '(DD/MM/YYYY)')
-            # self.date_end = input('Date de fin du tournois ? (DD/MM/YYYY)')
-            # self.time = input(
-            #     'Quelle est le format des match (bullet, '
-            #     'blitz,coup rapide) ?')
-            # self.desc = input('Description du tournois ?')
-            # self.turns = input(
-            #     'En combien de tours se déroule le tournois ? '
-            #     '(<Entrée> pour la valeur par defaut : 4)') or 4
-
-            # bit of code for testing purposes, it loads tournament info from
-            # json file.
-            with open('tournois.json') as f:
-                data = json.load(f)
-            self.name = data['name']
-            self.place = data['place']
-            self.date_start = data['date_start']
-            self.date_end = data['date_end']
-            self.time = data['time']
-            self.desc = data['desc']
-            self.turns = data['turns']
-            f.close()
+            self.name = input('Nom du tournois ?')
+            self.place = input('Lieu du tournois ?')
+            self.date_start = input('Date de debut du tournois? '
+                                    '(DD/MM/YYYY)')
+            self.date_end = input('Date de fin du tournois ? (DD/MM/YYYY)')
+            self.time = input(
+                'Quelle est le format des match (bullet, '
+                'blitz,coup rapide) ?')
+            self.desc = input('Description du tournois ?')
+            self.turns = input(
+                'En combien de tours se déroule le tournois ? '
+                '(<Entrée> pour la valeur par defaut : 4)') or 4
 
     def add_players(self, nombre_de_joueur=8):
         """
@@ -73,27 +60,17 @@ class Tournois:
          create a new round instance, and passes it the matchs list.
         """
 
-        # for i in range(0, nombre_de_joueur):
-        #     ident = i
-        #     family_name = input('Nom de famille du joueur {} ?'.format(i+1))
-        #     name = input('Prénom du joueur {} ?'.format(i+1))
-        #     dob = input('Date de naissance du joueur {} (DD/MM/YYYY) ?'
-        #                 .format(i+1))
-        #     sex = input('Sex du joueur {} (H/F) ?'.format(i+1))
-        #     rank = int(input('Classement du joueur {} ?'.format(i+1)))
-        #
-        #     self.players.append(
-        #         Joueurs(ident, family_name, name, dob, sex, rank))
+        for i in range(0, nombre_de_joueur):
+            ident = i
+            family_name = input('Nom de famille du joueur {} ?'.format(i+1))
+            name = input('Prénom du joueur {} ?'.format(i+1))
+            dob = input('Date de naissance du joueur {} (DD/MM/YYYY) ?'
+                        .format(i+1))
+            sex = input('Sex du joueur {} (H/F) ?'.format(i+1))
+            rank = int(input('Classement du joueur {} ?'.format(i+1)))
 
-        # # bit of code for testing purposes, it loads players info from json
-        # # file.
-        with open('joueurs.json') as f:
-            data = json.load(f)
-            for i in data:
-                self.players.append(
-                    Joueurs(i['ident'], i['family_name'], i['name'], i['dob'],
-                            i['sex'], i['rank'], i['points']))
-        f.close()
+            self.players.append(
+                Joueurs(ident, family_name, name, dob, sex, rank))
 
         first_round = self.first_round()
         self.create_round(first_round)
@@ -506,7 +483,6 @@ class Report:
         # menu
         input('\n Appuyez sur <Entrée> pour retourner au menu.')
         return
-
 
     def tournament_players(self, file):
         """
