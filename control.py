@@ -12,16 +12,17 @@ class Tournois:
 
     def __init__(self, file=None, resume=False):
         """
-        constructor that will creat a list to store Joueurs instances, the
-        current Round instance, the past Round instances, a round_list that
-        store lists of pairs of players playing against each other each rounds,
-        a round counter, and and tournament finish flag.
+        constructor that will creat a list to store Joueurs instances, an
+        empty attribut to store the current Round instance, the past Round
+        instances, a round_list that store finished rounds, a round counter,
+        and and tournament finish flag.
 
-        if it's a new tournament, it will then ask the user for the tournament
-        infos.
+        if it's a new tournament (resume = False), it will then ask the user
+        for the tournament infos.
 
-        If it's a resumed tournament, it will called the resume_tournament
-        method that will get the infos from the database.
+        If it's a resumed tournament (the selected tournament is pass with the
+        'file' parameter), it will called the resume_tournament method that
+        will get the infos from the database.
         """
         self.players = []
         self.current_round = None
@@ -41,14 +42,16 @@ class Tournois:
         else:
             # self.name = input('Nom du tournois ?')
             # self.place = input('Lieu du tournois ?')
-            # self.date_start = input('Date de debut du tournois? (DD/MM/YYYY)')
+            # self.date_start = input('Date de debut du tournois? '
+            #                         '(DD/MM/YYYY)')
             # self.date_end = input('Date de fin du tournois ? (DD/MM/YYYY)')
             # self.time = input(
-            #     'Quelle est le format des match (bullet, blitz,coup rapide) ?')
+            #     'Quelle est le format des match (bullet, '
+            #     'blitz,coup rapide) ?')
             # self.desc = input('Description du tournois ?')
             # self.turns = input(
-            #     'En combien de tours se déroule le tournois ?(défaut : 4)'
-            # ) or 4
+            #     'En combien de tours se déroule le tournois ? '
+            #     '(<Entrée> pour la valeur par defaut : 4)') or 4
 
             # bit of code for testing purposes, it loads tournament info from
             # json file.
@@ -62,22 +65,6 @@ class Tournois:
             self.desc = data['desc']
             self.turns = data['turns']
             f.close()
-
-    def get_round_matchs(self):
-        match = []
-        for i in self.rounds:
-            match.append(i.round_matches)
-        match.append(self.current_round.round_matches)
-        return match
-
-    def create_round(self, matches):
-
-        """
-        methode creating a new round instance, naming it via the round counter
-        of the tournament class and passing matches.
-        """
-        self.current_round = Rounds(name='Round ' + str(self.round_number),
-                                    matches=matches)
 
     def add_players(self, nombre_de_joueur=8):
         """
@@ -111,154 +98,25 @@ class Tournois:
         first_round = self.first_round()
         self.create_round(first_round)
 
-    def save_tournament(self):
+    def get_round_matchs(self):
         """
-        method to save the tournament as a json file using TinyDB.
-
+        method to get all round (finished and current) into a list wich will
+        be return to the calling function
         """
-        # creating a tournamentData object
-        tournament_save = TournamentData(self.name,
-                                         finish=self.tournament_finish)
+        match = []
+        for i in self.rounds:
+            match.append(i.round_matches)
+        match.append(self.current_round.round_matches)
+        return match
 
-        # if tournament is finish, put the end time stamp on current round.
-        if self.tournament_finish:
-            self.current_round.time_stamp(end=True)
-
-        players_list = []
-
-        # serializing the players instances
-        for i in self.players:
-            players_list.append(i.serialize_player())
-
-        # saving the serialized players' infos
-        tournament_save.save_players(players_list)
-
-        # saving tournament
-        tournament_infos = []
-        name = self.name
-        place = self.place
-        date_start = self.date_start
-        date_end = self.date_end
-        time = self.time
-        desc = self.desc
-        turns = self.turns
-        tournament_infos.append(
-            {'name': name, 'place': place, 'date_start': date_start,
-             'date_end': date_end, 'time': time, 'description': desc,
-             'turns': turns, 'round_number': self.round_number})
-        if self.rounds:
-            for i in self.rounds:
-                tournament_infos.append(self.save_rounds(i))
-
-        # saving current round
-        tournament_infos.append(self.save_rounds(self.current_round))
-
-        tournament_save.save_tournament(tournament_infos)
-
-        del tournament_save
-
-    @staticmethod
-    def save_rounds(rounds):
+    def create_round(self, matches):
         """
-        static method that serialized Rounds instances
+        methode creating a new round instance, naming it via the round counter
+        of the tournament class and passing round matches as a list of pairs
+        of Joueurs instances.
         """
-
-        name = rounds.name
-        results = rounds.results
-        time_start = rounds.time_start
-        time_end = rounds.time_end
-        matchs = rounds.saved_matches
-        round_to_save = {'name': name, 'results': results, 'matchs': matchs,
-                         'time_start': time_start, 'time_end': time_end}
-
-        return round_to_save
-
-    def resume_tournament(self, file):
-        """
-        method to resume an un-finish tournament.
-        it creat a tournament_data objet, then us it to load the tournaments
-        and players infos.
-        """
-
-        resumed_tournament = TournamentData(resume=True, file=file)
-        doc_in_table = 1
-
-        # getting players serialized infos, then calling new Joueurs instances.
-        for player in resumed_tournament.players_table:
-            ident = player['ident']
-            family_name = player['family_name']
-            name = player['name']
-            dob = player['dob']
-            sex = player['sex']
-            rank = player['rank']
-            points = player['points']
-            self.players.append(
-                Joueurs(ident, family_name, name, dob, sex, rank, points))
-
-        # getting tournament infos
-        tournament_infos = resumed_tournament.tournaments_table.get(
-            doc_id=doc_in_table)
-        self.name = tournament_infos['name']
-        self.place = tournament_infos['place']
-        self.date_start = tournament_infos['date_start']
-        self.date_end = tournament_infos['date_end']
-        self.time = tournament_infos['time']
-        self.desc = tournament_infos['description']
-        self.turns = tournament_infos['turns']
-        self.round_number = tournament_infos['round_number']
-        doc_in_table += 1
-
-        # getting round infos, then calling new rounds instances
-        rounds_infos = resumed_tournament.tournaments_table.get(
-            doc_id=doc_in_table)
-
-        while rounds_infos:
-            temp = Rounds(rounds_infos['name'], resume=True)
-            temp.results = rounds_infos['results']
-            temp.saved_matches = rounds_infos['matchs']
-            temp.time_start = rounds_infos['time_start']
-            temp.time_end = rounds_infos['time_end']
-
-            # getting pairs of players, then storing them in tournament
-            # instance, and the proper round instance.
-            players_list = sorted(self.players, key=attrgetter('ident'))
-            matchs_list = []
-
-            for i in temp.saved_matches:
-                p1 = players_list[i['id_player_1']]
-                p2 = players_list[i['id_player_2']]
-                matchs_list.append([p1, p2])
-
-            temp.round_matches = matchs_list
-
-            if not temp.time_end:
-                self.current_round = temp
-            else:
-                self.rounds.append(temp)
-
-            doc_in_table += 1
-            rounds_infos = resumed_tournament.tournaments_table.get(
-                doc_id=doc_in_table)
-
-        del resumed_tournament
-
-    def enter_results(self):
-        """
-        method to enter the results of a round.
-        it first creat the new pairs of players for the next round via
-        the next_round method, then adds it to the rounds list.
-        it increment the round counter, and if the tournament isn't finish,
-        call the time_stamp for the end of the round, put the finish round in
-        the rounds variable, and creat a new round.
-        """
-        new_round = self.next_round()
-        self.round_number += 1
-        if self.round_number <= 4:
-            self.current_round.time_stamp(end=True)
-            self.rounds.append(self.current_round)
-            self.create_round(new_round)
-        else:
-            self.tournament_finish = True
+        self.current_round = Rounds(name='Round ' + str(self.round_number),
+                                    matches=matches)
 
     def first_round(self):
         """
@@ -299,12 +157,166 @@ class Tournois:
                 # it will work properly, but i let it just in case.
             if len(tmp) < 3:
                 i = 1
+
             new_round.append([tmp[0], tmp[i]])
             tmp.pop(i)
             tmp.pop(0)
             i = 1
 
         return new_round
+
+    def end_round(self):
+        """
+        method to end a round.
+        it first creat the new pairs of players for the next round via
+        the next_round method, then adds it to the new_rounds list.
+        it increment the round counter, and if the tournament isn't finish,
+        call the time_stamp for the end of the round, put the finish round in
+        the rounds variable, and creat a new round.
+        """
+        new_round = self.next_round()
+        self.round_number += 1
+        if self.round_number <= 4:
+            self.current_round.time_stamp(end=True)
+            self.rounds.append(self.current_round)
+            self.create_round(new_round)
+        else:
+            self.tournament_finish = True
+
+    def save_tournament(self):
+        """
+        method to save the tournament as a json file using TinyDB.
+
+        """
+        # creating a tournamentData object
+        tournament_save = TournamentData(self.name,
+                                         finish=self.tournament_finish)
+
+        # if tournament is finish, put the end time stamp on current round.
+        if self.tournament_finish:
+            self.current_round.time_stamp(end=True)
+
+        players_list = []
+
+        # serializing the players instances
+        for i in self.players:
+            players_list.append(i.serialize_player())
+
+        # saving the serialized players' infos
+        tournament_save.save_players(players_list)
+
+        # saving tournament
+        tournament_infos = []
+        name = self.name
+        place = self.place
+        date_start = self.date_start
+        date_end = self.date_end
+        time = self.time
+        desc = self.desc
+        turns = self.turns
+        tournament_infos.append(
+            {'name': name, 'place': place, 'date_start': date_start,
+             'date_end': date_end, 'time': time, 'description': desc,
+             'turns': turns, 'round_number': self.round_number})
+
+        # If there is finished round in self.rounds, it saves it.
+        if self.rounds:
+            for i in self.rounds:
+                tournament_infos.append(self.save_rounds(i))
+
+        # saving current round
+        tournament_infos.append(self.save_rounds(self.current_round))
+
+        tournament_save.save_tournament(tournament_infos)
+
+        del tournament_save
+
+    @staticmethod
+    def save_rounds(rounds):
+        """
+        static method that serialized Rounds instances
+        """
+
+        name = rounds.name
+        results = rounds.results
+        time_start = rounds.time_start
+        time_end = rounds.time_end
+        matchs = rounds.saved_matches
+        round_to_save = {'name': name, 'results': results, 'matchs': matchs,
+                         'time_start': time_start, 'time_end': time_end}
+
+        return round_to_save
+
+    def resume_tournament(self, file):
+        """
+        method to resume an un-finish tournament.
+        it creat a tournament_data objet, then use it to load the tournaments
+        and players infos.
+        """
+
+        resumed_tournament = TournamentData(resume=True, file=file)
+        # doc_in_table is use to select the proper set of data in the save
+        # file.
+        doc_in_table = 1
+
+        # getting players serialized infos, then calling new Joueurs instances.
+        for player in resumed_tournament.players_table:
+            ident = player['ident']
+            family_name = player['family_name']
+            name = player['name']
+            dob = player['dob']
+            sex = player['sex']
+            rank = player['rank']
+            points = player['points']
+            self.players.append(
+                Joueurs(ident, family_name, name, dob, sex, rank, points))
+
+        # getting tournament infos
+        tournament_infos = resumed_tournament.tournaments_table.get(
+            doc_id=doc_in_table)
+        self.name = tournament_infos['name']
+        self.place = tournament_infos['place']
+        self.date_start = tournament_infos['date_start']
+        self.date_end = tournament_infos['date_end']
+        self.time = tournament_infos['time']
+        self.desc = tournament_infos['description']
+        self.turns = tournament_infos['turns']
+        self.round_number = tournament_infos['round_number']
+        doc_in_table += 1
+
+        # getting round infos, then calling new rounds instances
+        rounds_infos = resumed_tournament.tournaments_table.get(
+            doc_id=doc_in_table)
+
+        while rounds_infos:
+            temp = Rounds(rounds_infos['name'], resume=True)
+            temp.results = rounds_infos['results']
+            temp.saved_matches = rounds_infos['matchs']
+            temp.time_start = rounds_infos['time_start']
+            temp.time_end = rounds_infos['time_end']
+
+            # getting pairs of players, then setting them in Round instance
+            players_list = sorted(self.players, key=attrgetter('ident'))
+            matchs_list = []
+
+            for i in temp.saved_matches:
+                p1 = players_list[i['id_player_1']]
+                p2 = players_list[i['id_player_2']]
+                matchs_list.append([p1, p2])
+
+            temp.round_matches = matchs_list
+
+            # if Round has no time_end attribute, set it as the current round
+            if not temp.time_end:
+                self.current_round = temp
+            else:
+                self.rounds.append(temp)
+
+            doc_in_table += 1
+            rounds_infos = resumed_tournament.tournaments_table.get(
+                doc_id=doc_in_table)
+
+        del resumed_tournament
 
 
 class Rounds:
@@ -315,10 +327,10 @@ class Rounds:
     def __init__(self, name, matches=None, resume=False):
         """
         constructor creat a list for store the results, a name attribute, a
-        list of the patch of that round (pairs of players), a list of matches
-        that will be saved and two variables to store timestaps of the star
-         and end of the round. For the start one, it calls the time_stamp
-         method.
+        list of the matches of that round (pairs of players instances), a list
+        of matches that will be saved and two variables to store timestamps of
+        the start and end of the round. For the start one, it calls the
+        time_stamp method.
         """
         self.results = []
         self.name = name
@@ -332,7 +344,7 @@ class Rounds:
 
     def time_stamp(self, end=False):
         """
-        method that creat time stamp, it uses the end booelan to store either
+        method that creat time stamp, it uses the 'end' boolean to store either
         the start or end time.
         """
         date = datetime.now()
@@ -344,7 +356,7 @@ class Rounds:
 
     def matches(self):
         """
-        Method that store the matchs as string with player's indent, to be
+        Method that store the matchs as string with player's ident, to be
         store in the database.
         """
         for i in self.round_matches:
@@ -390,7 +402,7 @@ class Joueurs:
 
     def __init__(self, ident, family_name, name, dob, sex, rank, points=0):
         """
-        constructor creats infos attributes
+        constructor player's infos attributes
         """
         self.ident = ident
         self.family_name = family_name
@@ -457,23 +469,23 @@ class Report:
         actors_list = []
 
         # geting the list of stored finish tournaments
-        for files in glob('Tournois/Terminés/*.json'):
+        for files in glob(self.main_folder + '*.json'):
             tournament_list.append(files[18:-5])
 
         # looping through each stored tournaments to extract players list, then
         # adding them in actors_list as dictionaries
         for file in tournament_list:
-            resumed_tournament = TournamentData(file=self.main_folder + file,
-                                                resume=True)
+            saved_tournament = TournamentData(file=self.main_folder + file,
+                                              resume=True)
 
-            for player in resumed_tournament.players_table:
+            for player in saved_tournament.players_table:
                 family_name = player['family_name']
                 name = player['name']
                 rank = player['rank']
                 player = {'family_name': family_name, 'name': name,
                           'rank': rank}
                 actors_list.append(player)
-            del resumed_tournament
+            del saved_tournament
 
         # sorting players list by name and by rank
         actors_name = sorted(actors_list, key=itemgetter('family_name'))
@@ -493,6 +505,7 @@ class Report:
         # allow the program to wait for a user input to display the previous
         # menu
         input('\n Appuyez sur <Entrée> pour retourner au menu.')
+        return
 
     def tournament_players(self, file):
         """
@@ -508,11 +521,12 @@ class Report:
             family_name = player['family_name']
             name = player['name']
             print(family_name + ', ' + name)
+        del sel_tournament
 
         # allow the program to wait for a user input to display the previous
         # menu
         input('\n Appuyez sur <Entrée> pour retourner au menu.')
-        del sel_tournament
+        return
 
     def tournament_rounds(self, file):
         """
@@ -563,13 +577,17 @@ class Report:
                 p2 = i[1]['family_name'] + ', ' + i[1]['name']
                 print(p1 + ' - ' + p2)
             round_number += 1
+        del sel_tournament
 
         # allow the program to wait for a user input to display the previous
         # menu
         input('\n Appuyez sur <Entrée> pour retourner au menu.')
-        del sel_tournament
+        return
 
     def tournament_matchs(self, file):
+        """
+        method that will display all match results of a tournaments
+        """
         sel_tournament = TournamentData(resume=True,
                                         file=self.main_folder + file)
 
@@ -600,6 +618,7 @@ class Report:
             for i in rounds:
                 print(i[0] + ' / ' + i[1])
             round_number += 1
+        del sel_tournament
 
         input('\n Appuyez sur <Entrée> pour retourner au menu.')
-        del sel_tournament
+        return

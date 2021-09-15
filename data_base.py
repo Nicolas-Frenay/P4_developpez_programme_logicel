@@ -11,7 +11,7 @@ class TournamentData:
         """
         constructor will setup a TinyDB object, and two tables to store players
         and tournament/rounds
-        if parameter resume is Ture, it will creat empty attribute and called
+        if parameter resume is True, it will creat empty attribute and called
         the resume_tournament method.
         """
         try:
