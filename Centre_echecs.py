@@ -18,7 +18,7 @@ class Menus:
          params : None
          return : None
         """
-        self.T = None
+        self.chess_tournament = None
         self.report = None
         self.player_name_sort = []
         self.first_menu()
@@ -48,9 +48,9 @@ class Menus:
         Params : None
         Return : None
         """
-        self.T = Tournois()
-        self.T.add_players()
-        self.player_name_sort = sorted(self.T.players,
+        self.chess_tournament = Tournois()
+        self.chess_tournament.add_players()
+        self.player_name_sort = sorted(self.chess_tournament.players,
                                        key=attrgetter('family_name'))
         self.tournament()
 
@@ -61,7 +61,8 @@ class Menus:
         Return : None
         """
         tournament_menu = ConsoleMenu('Centre échecs',
-                                      self.T.name + ' - ' + self.T.time)
+                                      self.chess_tournament.name + ' - '
+                                      + self.chess_tournament.time)
         view_players = FunctionItem('Voir les joueurs du tournois',
                                     self.dis_players, menu=tournament_menu)
         mod_player = FunctionItem('Modifier un joueur', self.mod_player,
@@ -95,8 +96,9 @@ class Menus:
         """
         players_name = []
 
-        for i in self.player_name_sort:
-            players_name.append(i.family_name + ', ' + i.name)
+        for player in self.player_name_sort:
+            player_name = player.family_name + ', ' + player.name
+            players_name.append(player_name)
 
         players_menu = SelectionMenu(players_name, 'Center échecs', 'Joueurs')
         players_menu.show()
@@ -109,9 +111,10 @@ class Menus:
         """
         players_name = []
 
-        for i in self.player_name_sort:
-            players_name.append(
-                i.family_name + ', ' + i.name + ' : ' + str(i.rank))
+        for player in self.player_name_sort:
+            player_name = (player.family_name + ', '
+                           + player.name + ' : ' + str(player.rank))
+            players_name.append(player_name)
         sel = SelectionMenu.get_selection(players_name, 'Centre échecs',
                                           'Modification de joueur')
 
@@ -131,7 +134,7 @@ class Menus:
         round (which is the current one.)
         Return: None
         """
-        list = self.T.get_round_matchs()
+        list = self.chess_tournament.get_round_matchs()
         round_liste = []
         round_to_display = []
         displayed_round = ['Premier', 'Second', 'Troisième', 'Quatrième']
@@ -142,8 +145,9 @@ class Menus:
         else:
             # Creating the displayed menu items by creating a list of
             # names-string for each rounds.
-            for i in range(0, len(list)):
-                round_liste.append(displayed_round[i] + ' tours.')
+            for rounds in range(0, len(list)):
+                numbered_round = displayed_round[rounds] + ' tours.'
+                round_liste.append(numbered_round)
 
             # the get_selection method allows to get the user's choice
             rounds_sel = SelectionMenu.get_selection(round_liste,
@@ -158,13 +162,14 @@ class Menus:
         # calling there attributes, then sending this list to the round_menu
         # method to display it, with the proper round number.
         else:
-            for i in list[rounds_sel]:
-                round_to_display.append(
-                    i[0].name + ' ' + i[0].family_name + ' contre ' + i[
-                        1].name + ' ' + i[1].family_name)
+            for match in list[rounds_sel]:
+                displayed_match = (match[0].name + ' ' + match[0].family_name
+                                   + ' contre ' + match[1].name + ' '
+                                   + match[1].family_name)
+                round_to_display.append(displayed_match)
             if rounds_sel == -1:
                 self.round_menu(round_to_display,
-                                round_num=self.T.round_number)
+                                round_num=self.chess_tournament.round_number)
             else:
                 self.round_menu(round_to_display, round_num=rounds_sel + 1)
 
@@ -182,8 +187,9 @@ class Menus:
         rounds_menu = ConsoleMenu('Centre Echecs',
                                   'Round ' + str(round_num))
 
-        for i in range(0, len(round_show)):
-            tmp = MenuItem(round_show[i], menu=rounds_menu, should_exit=False)
+        for match in range(0, len(round_show)):
+            tmp = MenuItem(round_show[match], menu=rounds_menu,
+                           should_exit=False)
             rounds_menu.append_item(tmp)
 
         rounds_menu.show()
@@ -195,14 +201,14 @@ class Menus:
         Params : None
         Return : None
         """
-        current_round = self.T.current_round.round_matches
+        current_round = self.chess_tournament.current_round.round_matches
 
-        for item in current_round:
-            self.results_menu(item)
-        self.T.end_round()
+        for match in current_round:
+            self.results_menu(match)
+        self.chess_tournament.end_round()
 
         # Checking if this is the last round of the tournament.
-        if not self.T.tournament_finish:
+        if not self.chess_tournament.tournament_finish:
             self.show_rounds(True)
         else:
             self.end_tournament()
@@ -216,9 +222,10 @@ class Menus:
         Return : None
         """
         players_list = []
-        for i in range(0, len(players)):
-            players_list.append(players[i].name + ' '
-                                + players[i].family_name)
+        for player in range(0, len(players)):
+            player_name = (players[player].name + ' '
+                           + players[player].family_name)
+            players_list.append(player_name)
 
         players_list.append('Match nul')
         result_menu = SelectionMenu.get_selection(players_list,
@@ -230,7 +237,8 @@ class Menus:
         # the user selection, and the last choice of the menu is the exit of
         # the menu
         if result_menu < 3:
-            self.T.current_round.match_results(players, result_menu)
+            self.chess_tournament.current_round.match_results(players,
+                                                              result_menu)
 
     def end_tournament(self):
         """
@@ -240,13 +248,15 @@ class Menus:
         Return : None
         """
         self.save_tournament()
-        players_list = sorted(self.T.players, key=attrgetter('points'),
+        players_list = sorted(self.chess_tournament.players,
+                              key=attrgetter('points'),
                               reverse=True)
         players_rank = []
 
-        for i in players_list:
-            players_rank.append(
-                i.family_name + ' ' + i.name + ' : ' + str(i.points))
+        for players in players_list:
+            player_points = (players.family_name + ' ' + players.name + ' : '
+                             + str(players.points))
+            players_rank.append(player_points)
 
         end_menu = SelectionMenu(players_rank, 'Center échecs',
                                  'Fin de tournois',
@@ -259,13 +269,15 @@ class Menus:
         params : None
         Return : None
         """
-        players_list = sorted(self.T.players, key=attrgetter('rank'),
+        players_list = sorted(self.chess_tournament.players,
+                              key=attrgetter('rank'),
                               reverse=True)
         players_rank = []
 
-        for i in players_list:
-            players_rank.append(
-                str(i.rank) + ' : ' + i.family_name + ', ' + i.name)
+        for player in players_list:
+            player_ranking = (str(player.rank) + ' : ' + player.family_name
+                              + ', ' + player.name)
+            players_rank.append(player_ranking)
 
         rank_menu = SelectionMenu(players_rank, 'Center échecs', 'Classement')
         rank_menu.show()
@@ -279,19 +291,20 @@ class Menus:
         """
         players_name = []
 
-        for i in self.player_name_sort:
-            players_name.append(
-                i.family_name + ', ' + i.name + ' : ' + str(i.rank))
+        for player in self.player_name_sort:
+            name_player = (player.family_name + ', ' + player.name + ' : '
+                           + str(player.rank))
+            players_name.append(name_player)
         sel = SelectionMenu.get_selection(players_name, 'Centre échecs',
                                           'Modification du classement')
 
         # This is to avoid index error, since the last menu selection is the
         # exit one.
         if sel < len(players_name):
-            new_rank = int(input(
-                'Quel est le nouveau classement de ' + self.player_name_sort[
-                    sel].name + ' ' + self.player_name_sort[
-                    sel].family_name + ' ?'))
+            user_mod = input('Quel est le nouveau classement de '
+                             + self.player_name_sort[sel].name + ' '
+                             + self.player_name_sort[sel].family_name + ' ?')
+            new_rank = int(user_mod)
             self.player_name_sort[sel].new_rank(new_rank)
             self.save_tournament()
         else:
@@ -303,7 +316,7 @@ class Menus:
         params : None
         return : None
         """
-        self.T.save_tournament()
+        self.chess_tournament.save_tournament()
 
     def resume_t(self):
         """
@@ -321,10 +334,10 @@ class Menus:
         # This is to avoid index error, since the last menu selection is the
         # exit one.
         if sel < len(tournament_list):
-            self.T = Tournois(
+            self.chess_tournament = Tournois(
                 file='Tournois/Interrompus/' + tournament_list[sel],
                 resume=True)
-            self.player_name_sort = sorted(self.T.players,
+            self.player_name_sort = sorted(self.chess_tournament.players,
                                            key=attrgetter('family_name'))
             self.tournament()
         else:

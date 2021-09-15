@@ -87,8 +87,8 @@ class Tournois:
         return : List of all Round instances.
         """
         match = []
-        for i in self.rounds:
-            match.append(i.round_matches)
+        for rounds in self.rounds:
+            match.append(rounds.round_matches)
         match.append(self.current_round.round_matches)
         return match
 
@@ -210,11 +210,13 @@ class Tournois:
 
         # If there is finished round in self.rounds, it saves it.
         if self.rounds:
-            for i in self.rounds:
-                tournament_infos.append(self.save_rounds(i))
+            for rounds in self.rounds:
+                round_saved = self.save_rounds(rounds)
+                tournament_infos.append(round_saved)
 
         # saving current round
-        tournament_infos.append(self.save_rounds(self.current_round))
+        current_round_saved = self.save_rounds(self.current_round)
+        tournament_infos.append(current_round_saved)
 
         tournament_save.save_tournament(tournament_infos)
 
@@ -275,6 +277,8 @@ class Tournois:
         self.desc = tournament_infos['description']
         self.turns = tournament_infos['turns']
         self.round_number = tournament_infos['round_number']
+
+        # scrapping next document in table
         doc_in_table += 1
 
         # getting round infos, then calling new rounds instances
@@ -292,9 +296,9 @@ class Tournois:
             players_list = sorted(self.players, key=attrgetter('ident'))
             matchs_list = []
 
-            for i in temp.saved_matches:
-                p1 = players_list[i['id_player_1']]
-                p2 = players_list[i['id_player_2']]
+            for match in temp.saved_matches:
+                p1 = players_list[match['id_player_1']]
+                p2 = players_list[match['id_player_2']]
                 matchs_list.append([p1, p2])
 
             temp.round_matches = matchs_list
@@ -362,9 +366,10 @@ class Rounds:
         params : None
         return : None
         """
-        for i in self.round_matches:
-            self.saved_matches.append(
-                {'id_player_1': i[0].ident, 'id_player_2': i[1].ident})
+        for match in self.round_matches:
+            match_saved = {'id_player_1': match[0].ident,
+                           'id_player_2': match[1].ident}
+            self.saved_matches.append(match_saved)
 
     def match_results(self, players, index):
         """
@@ -501,7 +506,8 @@ class Report:
 
         # geting the list of stored finish tournaments
         for files in glob(self.main_folder + '*.json'):
-            tournament_list.append(files[18:-5])
+            strip_file_name = files[18:-5]
+            tournament_list.append(strip_file_name)
 
         # looping through each stored tournaments to extract players list, then
         # adding them in actors_list as dictionaries
@@ -524,14 +530,16 @@ class Report:
 
         print('Ensemble des joueurs enregistrés (par ordre alphabetique) : \n')
         for actors in actors_name:
-            print(actors['family_name'] + ', ' + actors['name'])
+            actor_name = actors['family_name'] + ', ' + actors['name']
+            print(actor_name)
 
         print('\n-------------------\n')
 
         print('Ensemble des joueurs enregistrés (par classement) :\n')
         for actors in actors_rank:
-            print(str(actors['rank']) + ' : ' + actors['family_name'] + ', ' +
-                  actors['name'])
+            actor_rank = (str(actors['rank']) + ' : ' + actors['family_name']
+                          + ', ' + actors['name'])
+            print(actor_rank)
 
         # allow the program to wait for a user input to display the previous
         # menu
