@@ -100,48 +100,54 @@ class Tournois:
 
     def get_round_matchs(self):
         """
-        method to get all round (finished and current) into a list wich will
-        be return to the calling function
+        Aims :  get all round (finished and current) into a list
+        params None
+        return : List of all Round instances.
         """
         match = []
-        for i in self.rounds:
-            match.append(i.round_matches)
+        for rounds in self.rounds:
+            match.append(rounds.round_matches)
         match.append(self.current_round.round_matches)
         return match
 
     def create_round(self, matches):
         """
-        methode creating a new round instance, naming it via the round counter
-        of the tournament class and passing round matches as a list of pairs
-        of Joueurs instances.
+        Aims : creat a new round instance
+        params :
+        -Matches : List of matchs (pairs of players instances)
+        return : None
         """
         self.current_round = Rounds(name='Round ' + str(self.round_number),
                                     matches=matches)
 
     def first_round(self):
         """
-        Method that creat the first pairs of player, using the swiss sorting
+        Aims : creat the first pairs of player, using the swiss sorting
         system.
+        params : None
+        return : list of matchs (pairs of players instances)
         """
         start_round_list = []
         players_list = sorted(self.players, key=attrgetter('rank'),
                               reverse=True)
         for i in range(0, len(players_list) // 2):
             start_round_list.append(
-                [players_list[i], players_list[i + len(players_list) // 2]])
+                [players_list[i],
+                 players_list[i + len(players_list) // 2]])
         return start_round_list
 
     def next_round(self):
         """
-        Method that creat the rounds after the first one, using the swiss
-        system.
+        Aims : creat the rounds after the first one, using the swiss system.
+        params : None
+        return : list of matchs (pairs of players instances)
         """
         new_round = []
         i = 1
         tmp = sorted(self.players, key=attrgetter('points', 'rank'),
                      reverse=True)
 
-        # if the two first players already met, it puts #1 with #3.
+        # if the two first players already met, put #1 with #3.
         past_rounds = self.get_round_matchs()
         while tmp:
             for tours in past_rounds:
@@ -167,12 +173,12 @@ class Tournois:
 
     def end_round(self):
         """
-        method to end a round.
-        it first creat the new pairs of players for the next round via
-        the next_round method, then adds it to the new_rounds list.
-        it increment the round counter, and if the tournament isn't finish,
-        call the time_stamp for the end of the round, put the finish round in
-        the rounds variable, and creat a new round.
+        Aims :End a round. call next_round method to get the next match,
+        increase round counter, if it's not the last round, called time_stamp
+        method from current round, put it in past round list, and creat a new
+        round.
+        params : None
+        return : None
         """
         new_round = self.next_round()
         self.round_number += 1
@@ -185,9 +191,11 @@ class Tournois:
 
     def save_tournament(self):
         """
-        method to save the tournament as a json file using TinyDB.
-
+        Aims : save the tournament as a json file using TinyDB.
+        params : None
+        return : None
         """
+
         # creating a tournamentData object
         tournament_save = TournamentData(self.name,
                                          finish=self.tournament_finish)
@@ -221,11 +229,13 @@ class Tournois:
 
         # If there is finished round in self.rounds, it saves it.
         if self.rounds:
-            for i in self.rounds:
-                tournament_infos.append(self.save_rounds(i))
+            for rounds in self.rounds:
+                round_saved = self.save_rounds(rounds)
+                tournament_infos.append(round_saved)
 
         # saving current round
-        tournament_infos.append(self.save_rounds(self.current_round))
+        current_round_saved = self.save_rounds(self.current_round)
+        tournament_infos.append(current_round_saved)
 
         tournament_save.save_tournament(tournament_infos)
 
@@ -234,7 +244,10 @@ class Tournois:
     @staticmethod
     def save_rounds(rounds):
         """
-        static method that serialized Rounds instances
+        Aims : serialized Rounds instances
+        params :
+        -rounds : Round instance
+        return : dictionary of the serialized round
         """
 
         name = rounds.name
@@ -242,16 +255,18 @@ class Tournois:
         time_start = rounds.time_start
         time_end = rounds.time_end
         matchs = rounds.saved_matches
-        round_to_save = {'name': name, 'results': results, 'matchs': matchs,
+        round_to_save = {'name': name, 'results': results,
+                         'matchs': matchs,
                          'time_start': time_start, 'time_end': time_end}
 
         return round_to_save
 
     def resume_tournament(self, file):
         """
-        method to resume an un-finish tournament.
-        it creat a tournament_data objet, then use it to load the tournaments
-        and players infos.
+        Aims : resume an un-finished tournament
+        params :
+        -file : str of the file to resume the tournament from
+        return : None
         """
 
         resumed_tournament = TournamentData(resume=True, file=file)
@@ -282,6 +297,8 @@ class Tournois:
         self.desc = tournament_infos['description']
         self.turns = tournament_infos['turns']
         self.round_number = tournament_infos['round_number']
+
+        # scrapping next document in table
         doc_in_table += 1
 
         # getting round infos, then calling new rounds instances
@@ -299,9 +316,9 @@ class Tournois:
             players_list = sorted(self.players, key=attrgetter('ident'))
             matchs_list = []
 
-            for i in temp.saved_matches:
-                p1 = players_list[i['id_player_1']]
-                p2 = players_list[i['id_player_2']]
+            for match in temp.saved_matches:
+                p1 = players_list[match['id_player_1']]
+                p2 = players_list[match['id_player_2']]
                 matchs_list.append([p1, p2])
 
             temp.round_matches = matchs_list
@@ -321,16 +338,21 @@ class Tournois:
 
 class Rounds:
     """
-    class that creats rounds
+    class that creats rounds objects
     """
 
     def __init__(self, name, matches=None, resume=False):
         """
-        constructor creat a list for store the results, a name attribute, a
-        list of the matches of that round (pairs of players instances), a list
-        of matches that will be saved and two variables to store timestamps of
-        the start and end of the round. For the start one, it calls the
-        time_stamp method.
+        Aims : constructor creat a list for store the results, a name
+        attribute, a list of the matches of that round, a list of matches for
+        saving, and two variables to store timestamps of the start and end of
+        the round.
+        params :
+        -name : str to name the Round
+        -matches : list of matches of the round (pairs of players)
+        resume : Boolean : if True, constructor will not put start time stamp,
+        and won't store matches as dictionaries.
+        return : None
         """
         self.results = []
         self.name = name
@@ -344,8 +366,11 @@ class Rounds:
 
     def time_stamp(self, end=False):
         """
-        method that creat time stamp, it uses the 'end' boolean to store either
-        the start or end time.
+        Aims : creat time stamps
+        params :
+        -end : Boolean, if True, will store the time stamp in time_end
+        atribute, otherwise, it stores it in time_start.
+        :return : None
         """
         date = datetime.now()
 
@@ -356,20 +381,27 @@ class Rounds:
 
     def matches(self):
         """
-        Method that store the matchs as string with player's ident, to be
+        Aims : store the matchs as string with player's ident, to be
         store in the database.
+        params : None
+        return : None
         """
-        for i in self.round_matches:
-            self.saved_matches.append(
-                {'id_player_1': i[0].ident, 'id_player_2': i[1].ident})
+        for match in self.round_matches:
+            match_saved = {'id_player_1': match[0].ident,
+                           'id_player_2': match[1].ident}
+            self.saved_matches.append(match_saved)
 
     def match_results(self, players, index):
         """
-        method that store each match result as a tuple of lists :each list is
-        the name and ident of the player, and results of the match.
-        It also change the player's instance points.
-        index and players are passed by the result_menu method of the Menus
-        class.
+        Aims : store each match result as a tuple of  2 lists :each list is
+        the name and ident of the player, and results of the match. It also
+        change the player's instance points via the new_points method of
+        Joueurs class.
+        params :
+        -players : list of a pair of players instances (matches)
+        -index : int, user selection to determine the winner (or a draw). sent
+        by the results_menu method, of the Menu class
+        return : None
         """
         if index == 0:
             players[index].new_points(1)
@@ -402,8 +434,18 @@ class Joueurs:
 
     def __init__(self, ident, family_name, name, dob, sex, rank, points=0):
         """
-        constructor player's infos attributes
+        Aims : constructor, player's infos attributes
+        params :
+        -ident : int, attribute that set a identifier for each player
+        -family_name : str
+        -name : str
+        -dob : str of date of birth
+        -sex : str
+        -rank : int
+        -point : float (default : 0)
+        returns : None
         """
+
         self.ident = ident
         self.family_name = family_name
         self.name = name
@@ -414,19 +456,26 @@ class Joueurs:
 
     def new_rank(self, new_rank):
         """
-        method that change the rank of the player
+        Aims : change the rank of the player
+        :params :
+        -new_rank : int
+        return : None
         """
         self.rank = new_rank
 
     def new_points(self, new_points):
         """
-        method that change the points of the player
+        Aims : change the points of the player
+        params :
+        -new_points : float
         """
         self.points += new_points
 
     def mod_player(self):
         """
-        Method that allow the user to change the player infos.
+        Aims : allow the user to change the player infos.
+        params : None
+        return : None
         """
         family_name = input('Nom de famille du joueur ?')
         name = input('Prénom du joueur ?')
@@ -441,9 +490,12 @@ class Joueurs:
 
     def serialize_player(self):
         """
-        method that serialized the player's instance so it can be stored.
+        Aims : serialized the player's instance so it can be stored.
+        params : None
+        return : None
         """
-        serialize_p = {'ident': self.ident, 'family_name': self.family_name,
+        serialize_p = {'ident': self.ident,
+                       'family_name': self.family_name,
                        'name': self.name, 'dob': self.dob,
                        'sex': self.sex, 'rank': self.rank,
                        'points': self.points}
@@ -456,13 +508,18 @@ class Report:
     """
 
     def __init__(self):
-        # setting the main folder
+        """
+        Aims : Creat a variable of the finished tournament folder
+        params : None
+        return : None
+        """
         self.main_folder = 'Tournois/Terminés/'
 
     def all_players(self):
         """
-        method that will print all players that have played in stored
-        tournaments
+        Aims : print all players that have played in stored tournaments
+        params : None
+        return : None
         """
 
         tournament_list = []
@@ -470,7 +527,8 @@ class Report:
 
         # geting the list of stored finish tournaments
         for files in glob(self.main_folder + '*.json'):
-            tournament_list.append(files[18:-5])
+            strip_file_name = files[18:-5]
+            tournament_list.append(strip_file_name)
 
         # looping through each stored tournaments to extract players list, then
         # adding them in actors_list as dictionaries
@@ -489,18 +547,23 @@ class Report:
 
         # sorting players list by name and by rank
         actors_name = sorted(actors_list, key=itemgetter('family_name'))
-        actors_rank = sorted(actors_list, key=itemgetter('rank'), reverse=True)
+        actors_rank = sorted(actors_list, key=itemgetter('rank'),
+                             reverse=True)
 
-        print('Ensemble des joueurs enregistrés (par ordre alphabetique) : \n')
+        print(
+            'Ensemble des joueurs enregistrés (par ordre alphabetique) : \n')
         for actors in actors_name:
-            print(actors['family_name'] + ', ' + actors['name'])
+            actor_name = actors['family_name'] + ', ' + actors['name']
+            print(actor_name)
 
         print('\n-------------------\n')
 
         print('Ensemble des joueurs enregistrés (par classement) :\n')
         for actors in actors_rank:
-            print(str(actors['rank']) + ' : ' + actors['family_name'] + ', ' +
-                  actors['name'])
+            actor_rank = (
+                    str(actors['rank']) + ' : ' + actors['family_name']
+                    + ', ' + actors['name'])
+            print(actor_rank)
 
         # allow the program to wait for a user input to display the previous
         # menu
@@ -509,8 +572,10 @@ class Report:
 
     def tournament_players(self, file):
         """
-        Method that display the list of player of a selected tournament, send
-        as the 'file' parameter, by the  calling function.
+        Aims : display the list of player of a selected tournament
+        params :
+        -file : str of the selected tournament file name
+        return : None
         """
         sel_tournament = TournamentData(resume=True,
                                         file=self.main_folder + file)
@@ -530,8 +595,10 @@ class Report:
 
     def tournament_rounds(self, file):
         """
-        method that display all rounds of a selected tournament, given by the
-        'file' parameter, given by the calling function
+        Aims : display all rounds of a selected tournament
+        params :
+        -file : str of the selected tournament file name
+        return : None
         """
         sel_tournament = TournamentData(resume=True,
                                         file=self.main_folder + file)
@@ -586,7 +653,11 @@ class Report:
 
     def tournament_matchs(self, file):
         """
-        method that will display all match results of a tournaments
+        Aims : display the list of matchs and their results of a selected
+        tournament
+        params :
+        -file : str of the selected tournament file name
+        return : None
         """
         sel_tournament = TournamentData(resume=True,
                                         file=self.main_folder + file)
