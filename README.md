@@ -1,81 +1,60 @@
-from os import mkdir
+# 4_Développez_un_programme_logiciel_en_Python
+# Projet 4 : Développez un programme logiciel en Python
+
+Le projet final comporte 3 fichiers python :
+- Centre_echencs.py : fichier principale, gérant le front-end et l'affichage du menu. A lancer pour exectuer le programme.
+- control.py : fichier contenant le back-end de l'application.
+- data_base : fichier gérant la base de donnée utilisant TinyDB.
+
+Vous trouverez deux branches sur github :
+
+La branche "master" comporte le projet final.
+
+La branche "with_json_loading" comporte 2 fichiers *.json supplémentaires, joueurs.json et tournois.json.
+Ils servent a charger plus simplement les informations d'un tournois et de joueurs, pour faciliter les testes. Le code 
+du projet final est toujours present, mais commenté, et quelques instructions ont été rajoutées pour charger les 
+informations
+depuis les fichiers *.json.
 
 
-class TournamentData:
-    """
-    Class that is used to store tournament and players data.
-    """
+## Instructions :
 
-    def __init__(self, name=None, resume=False, file=None, finish=False):
-        """
-        constructor will setup a TinyDB object, and two tables to store players
-        and tournament/rounds
-        if parameter resume is True, it will creat empty attribute and called
-        the resume_tournament method.
-        Aims : creat a TinyDB object with two tables in it
-        params :
-        -name : str of the tournament name
-        resume : boolean, if true, will resume a tournament
-        -file : str of the file to load if resume is true.
-        -finish : boolean to indicate if a tournament is finish, so it can be
-        stored in the proper folder
-        return : None
-        """
-        try:
-            mkdir('Tournois/Terminés/')
-        except FileExistsError:
-            pass
-        try:
-            mkdir('Tournois/Interrompus/')
-        except FileExistsError:
-            pass
-        if not resume:
-            self.name = name.replace(' ', '_')
-            if finish:
-                self.db = TinyDB(
-                    'Tournois/Terminés/Centre_échecs - ' + self.name + '.json',
-                    indent=4)
-            else:
-                self.db = TinyDB(
-                    'Tournois/Interrompus/Centre_échecs - '
-                    + self.name + '.json', indent=4)
-            self.players_table = self.db.table('Joueurs')
-            self.tournaments_table = self.db.table('Tournois')
-        else:
-            self.name = None
-            self.db = None
-            self.players_table = None
-            self.tournaments_table = None
-            self.resume_tournament(file)
 
-    def resume_tournament(self, file):
-        """
-        Aims : load an existing file and its tables.
-        params :
-        -file : str of the name of the file to load
-        return : None
-        """
-        target_file = file + '.json'
-        self.db = TinyDB(target_file, indent=4)
-        self.players_table = self.db.table('Joueurs')
-        self.tournaments_table = self.db.table('Tournois')
+1) Installation python :
+- Allez sur [https://www.python.org/downloads/](url) , et télécharger la dernière version de python, puis lancez le fichier 
+  téléchargé pour l'installer.
 
-    def save_tournament(self, list):
-        """
-        Aims : store tournament in data base.
-        params :
-        -list : list of all data from the Tournois object
-        return : None
-        """
-        self.tournaments_table.truncate()
-        self.tournaments_table.insert_multiple(list)
+2) Télécharger le code :
+- Sur le repository github, cliquez sur le bouton "Code", puis "Download ZIP".
+- Ensuite décompressez le fichier dans votre dossier de travail.
 
-    def save_players(self, players):
-        """
-        Aims : store players in database.
-        params :
-        -players : list of serialized Joueurs instances.
-        return : None
-        """
-        self.players_table.truncate()
-        self.players_table.insert_multiple(players)
+3) creation environnement virtuel :
+- Ouvrez un terminal, puis allez dans votre dossier de travail avec la commande cd.
+- Dans le terminal, tapez : ``` python3 -m venv env ```
+
+4) Activer l'environnement virtuel :
+  - Si vous êtes sous mac ou linux :
+    - tapez : ```source env/bin/activate ```
+  - Si vous êtes sous windows :
+    - tapez ```env/Scripts/activate.bat```
+
+5) Installation des modules nécessaires :
+- dans le terminal, tapez : ```pip install -r requirements.txt```
+
+6) lancer le script :
+- dans le terminal tapez : ```python3 Centre_echecs.py```
+
+7)Pour fermer l'environnement virtuel :
+- Dans le terminal, tapez : ```deactivate ```
+
+
+## Utilisation :
+
+
+Le programme affiche un menu textuel dans la fenetre de terminal, taper simplement le chiffre correspondant à votre 
+choix, puis appuyer sur la touche <entrée> pour valider.
+
+Dans les cas ou vous créez un nouveau tournois, ou que vous modifiez les informations d'un joueurs, tapez les informations
+demandées, puis appuyez sur <entrée>.
+
+
