@@ -17,12 +17,15 @@ class Tournois:
         instances, a round_list that store finished rounds, a round counter,
         and and tournament finish flag.
 
-        if it's a new tournament (resume = False), it will then ask the user
-        for the tournament infos.
-
-        If it's a resumed tournament (the selected tournament is pass with the
-        'file' parameter), it will called the resume_tournament method that
-        will get the infos from the database.
+        Aims : constructor will creat a list to store Joueurs instances, an
+        empty attribut to store the current Round instance, a round_list that
+        store finished rounds, a round counter, and and tournament finish flag.
+        params :
+        -file : str : filename used to load a un-finished tournament from data
+        base
+        -resume : boolean, if true : will set attributes to None before loading
+        the resumed tournament.
+        returns : None
         """
         self.players = []
         self.current_round = None
@@ -66,24 +69,15 @@ class Tournois:
             self.turns = data['turns']
             f.close()
 
-    def add_players(self, nombre_de_joueur=8):
+    def add_players(self, nb_of_players=8):
         """
-        method asking the user for each players infos.
-        then it called the first_round method to creat the first matchs, then
-         create a new round instance, and passes it the matchs list.
+        Aims : ask the user for each players infos, called the first_round
+        method to creat the first matchs, create a new round instance, and
+        passes it the matchs list.
+        params :
+        -nb_of_players : int, default 8.
+        return : None
         """
-
-        # for i in range(0, nombre_de_joueur):
-        #     ident = i
-        #     family_name = input('Nom de famille du joueur {} ?'.format(i+1))
-        #     name = input('Prénom du joueur {} ?'.format(i+1))
-        #     dob = input('Date de naissance du joueur {} (DD/MM/YYYY) ?'
-        #                 .format(i+1))
-        #     sex = input('Sex du joueur {} (H/F) ?'.format(i+1))
-        #     rank = int(input('Classement du joueur {} ?'.format(i+1)))
-        #
-        #     self.players.append(
-        #         Joueurs(ident, family_name, name, dob, sex, rank))
 
         # # bit of code for testing purposes, it loads players info from json
         # # file.
