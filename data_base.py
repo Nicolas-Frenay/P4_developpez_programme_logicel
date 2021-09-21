@@ -13,6 +13,14 @@ class TournamentData:
         and tournament/rounds
         if parameter resume is True, it will creat empty attribute and called
         the resume_tournament method.
+        Aims : creat a TinyDB object with two tables in it
+        params :
+        -name : str of the tournament name
+        resume : boolean, if true, will resume a tournament
+        -file : str of the file to load if resume is true.
+        -finish : boolean to indicate if a tournament is finish, so it can be
+        stored in the proper folder
+        return : None
         """
         try:
             mkdir('Tournois/Terminés/')
@@ -43,23 +51,32 @@ class TournamentData:
 
     def resume_tournament(self, file):
         """
-        method that load an existing file and its tables.
+        Aims : load an existing file and its tables.
+        params :
+        -file : str of the name of the file to load
+        return : None
         """
         target_file = file + '.json'
         self.db = TinyDB(target_file, indent=4)
         self.players_table = self.db.table('Joueurs')
         self.tournaments_table = self.db.table('Tournois')
 
-    def save_tournament(self, tournament_data):
+    def save_tournament(self, list):
         """
-        methode that will store tournament in data base.
+        Aims : store tournament in data base.
+        params :
+        -list : list of all data from the Tournois object
+        return : None
         """
         self.tournaments_table.truncate()
-        self.tournaments_table.insert_multiple(tournament_data)
+        self.tournaments_table.insert_multiple(list)
 
     def save_players(self, players):
         """
-        methode that store players in database.
+        Aims : store players in database.
+        params :
+        -players : list of serialized Joueurs instances.
+        return : None
         """
         self.players_table.truncate()
         self.players_table.insert_multiple(players)
