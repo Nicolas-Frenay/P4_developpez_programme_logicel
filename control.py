@@ -2,6 +2,7 @@ import json
 from operator import attrgetter, itemgetter
 from datetime import datetime
 from data_base import TournamentData
+import re
 from glob import glob
 
 
@@ -520,9 +521,9 @@ class Report:
         actors_list = []
 
         # geting the list of stored finish tournaments
-        # TODO : remplacer glob par autre chose, et utiliser regex pour le nom de fichier
         for files in glob(self.main_folder + '*.json'):
-            strip_file_name = files[18:-5]
+            strip_file_name = re.search('(?<=Terminés/).*?(?=.json)',
+                                        files).group()
             tournament_list.append(strip_file_name)
 
         # looping through each stored tournaments to extract players list, then
@@ -563,7 +564,6 @@ class Report:
         # allow the program to wait for a user input to display the previous
         # menu
         input('\n Appuyez sur <Entrée> pour retourner au menu.')
-        return
 
     def tournament_players(self, file):
         """
@@ -575,8 +575,8 @@ class Report:
         sel_tournament = TournamentData(resume=True,
                                         file=self.main_folder + file)
 
-        # TODO : regex pour nom de fichier
-        print('Joueurs du tournois ' + file[18:] + ' :\n')
+        print('Joueurs du tournois ' + file + ' :\n')
+
         # getting players serialized infos
         for player in sel_tournament.players_table:
             family_name = player['family_name']
@@ -587,7 +587,7 @@ class Report:
         # allow the program to wait for a user input to display the previous
         # menu
         input('\n Appuyez sur <Entrée> pour retourner au menu.')
-        return
+        # return
 
     def tournament_rounds(self, file):
         """

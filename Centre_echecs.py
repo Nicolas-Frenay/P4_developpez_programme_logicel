@@ -2,6 +2,7 @@ from consolemenu import ConsoleMenu, SelectionMenu
 from consolemenu.items import FunctionItem, MenuItem
 from operator import attrgetter
 from control import Tournois, Report
+import re
 from glob import glob
 
 
@@ -328,9 +329,11 @@ class Menus:
         returns : None
         """
         tournament_list = []
-# TODO : remplacer glob, et utiliser regex pour le nom de fichier
+        # TODO : remplacer glob
         for files in glob('Tournois/Interrompus/*.json'):
-            tournament_list.append(files[21:-5])
+            tournament_displayed = re.search('(?<=Interrompus/).*?(?=.json)',
+                                             files).group()
+            tournament_list.append(tournament_displayed)
         sel = SelectionMenu.get_selection(tournament_list, 'Centre échecs',
                                           "Reprise d'un tournois interrompu")
 
