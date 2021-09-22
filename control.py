@@ -520,6 +520,7 @@ class Report:
         actors_list = []
 
         # geting the list of stored finish tournaments
+        # TODO : remplacer glob par autre chose, et utiliser regex pour le nom de fichier
         for files in glob(self.main_folder + '*.json'):
             strip_file_name = files[18:-5]
             tournament_list.append(strip_file_name)
@@ -574,6 +575,7 @@ class Report:
         sel_tournament = TournamentData(resume=True,
                                         file=self.main_folder + file)
 
+        # TODO : regex pour nom de fichier
         print('Joueurs du tournois ' + file[18:] + ' :\n')
         # getting players serialized infos
         for player in sel_tournament.players_table:

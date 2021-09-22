@@ -86,6 +86,7 @@ class Menus:
         tournament_menu.append_item(display_ranking)
         tournament_menu.append_item(rank_mod)
         tournament_menu.append_item(save_tournament)
+        self.save_tournament()
         tournament_menu.show()
 
     def dis_players(self):
@@ -145,8 +146,8 @@ class Menus:
         else:
             # Creating the displayed menu items by creating a list of
             # names-string for each rounds.
-            for rounds in range(0, len(list)):
-                numbered_round = displayed_round[rounds] + ' tours.'
+            for index, rounds in enumerate(list):
+                numbered_round = displayed_round[index] + ' tours.'
                 round_liste.append(numbered_round)
 
             # the get_selection method allows to get the user's choice
@@ -187,8 +188,8 @@ class Menus:
         rounds_menu = ConsoleMenu('Centre Echecs',
                                   'Round ' + str(round_num))
 
-        for match in range(0, len(round_show)):
-            tmp = MenuItem(round_show[match], menu=rounds_menu,
+        for index, match in enumerate(round_show):
+            tmp = MenuItem(round_show[index], menu=rounds_menu,
                            should_exit=False)
             rounds_menu.append_item(tmp)
 
@@ -206,6 +207,7 @@ class Menus:
         for match in current_round:
             self.results_menu(match)
         self.chess_tournament.end_round()
+        self.save_tournament()
 
         # Checking if this is the last round of the tournament.
         if not self.chess_tournament.tournament_finish:
@@ -222,9 +224,9 @@ class Menus:
         Return : None
         """
         players_list = []
-        for player in range(0, len(players)):
-            player_name = (players[player].name + ' '
-                           + players[player].family_name)
+        for index, player in enumerate(players):
+            player_name = (players[index].name + ' '
+                           + players[index].family_name)
             players_list.append(player_name)
 
         players_list.append('Match nul')
@@ -326,6 +328,7 @@ class Menus:
         returns : None
         """
         tournament_list = []
+# TODO : remplacer glob, et utiliser regex pour le nom de fichier
         for files in glob('Tournois/Interrompus/*.json'):
             tournament_list.append(files[21:-5])
         sel = SelectionMenu.get_selection(tournament_list, 'Centre échecs',
