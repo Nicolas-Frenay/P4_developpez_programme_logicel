@@ -1,5 +1,5 @@
 from tinydb import TinyDB
-from os import mkdir
+from os import mkdir, path, remove
 
 
 class TournamentData:
@@ -36,6 +36,9 @@ class TournamentData:
                 self.db = TinyDB(
                     'Tournois/Terminés/' + self.name + '.json',
                     indent=4)
+                if path.exists('Tournois/Interrompus/' + self.name + '.json'):
+                    remove('Tournois/Interrompus/' + self.name + '.json')
+
             else:
                 self.db = TinyDB(
                     'Tournois/Interrompus/'
