@@ -1,6 +1,7 @@
 from operator import attrgetter, itemgetter
 from datetime import datetime
 from data_base import TournamentData
+import re
 from glob import glob
 
 
@@ -113,8 +114,8 @@ class Tournois:
         players_list = sorted(self.players, key=attrgetter('rank'),
                               reverse=True)
         for i in range(0, len(players_list) // 2):
-            start_round_list.append(
-                [players_list[i], players_list[i + len(players_list) // 2]])
+            start_round_list.append([players_list[i],
+                                     players_list[i + len(players_list) // 2]])
         return start_round_list
 
     def next_round(self):
@@ -475,9 +476,8 @@ class Joueurs:
         return : None
         """
         serialize_p = {'ident': self.ident, 'family_name': self.family_name,
-                       'name': self.name, 'dob': self.dob,
-                       'sex': self.sex, 'rank': self.rank,
-                       'points': self.points}
+                       'name': self.name, 'dob': self.dob, 'sex': self.sex,
+                       'rank': self.rank, 'points': self.points}
         return serialize_p
 
 
@@ -506,7 +506,8 @@ class Report:
 
         # geting the list of stored finish tournaments
         for files in glob(self.main_folder + '*.json'):
-            strip_file_name = files[18:-5]
+            strip_file_name = re.search('(?<=Terminés/).*?(?=.json)',
+                                        files).group()
             tournament_list.append(strip_file_name)
 
         # looping through each stored tournaments to extract players list, then
@@ -526,7 +527,8 @@ class Report:
 
         # sorting players list by name and by rank
         actors_name = sorted(actors_list, key=itemgetter('family_name'))
-        actors_rank = sorted(actors_list, key=itemgetter('rank'), reverse=True)
+        actors_rank = sorted(actors_list, key=itemgetter('rank'),
+                             reverse=True)
 
         print('Ensemble des joueurs enregistrés (par ordre alphabetique) : \n')
         for actors in actors_name:
@@ -544,7 +546,6 @@ class Report:
         # allow the program to wait for a user input to display the previous
         # menu
         input('\n Appuyez sur <Entrée> pour retourner au menu.')
-        return
 
     def tournament_players(self, file):
         """
@@ -556,7 +557,8 @@ class Report:
         sel_tournament = TournamentData(resume=True,
                                         file=self.main_folder + file)
 
-        print('Joueurs du tournois ' + file[18:] + ' :\n')
+        print('Joueurs du tournois ' + file + ' :\n')
+
         # getting players serialized infos
         for player in sel_tournament.players_table:
             family_name = player['family_name']
@@ -567,7 +569,7 @@ class Report:
         # allow the program to wait for a user input to display the previous
         # menu
         input('\n Appuyez sur <Entrée> pour retourner au menu.')
-        return
+        # return
 
     def tournament_rounds(self, file):
         """
