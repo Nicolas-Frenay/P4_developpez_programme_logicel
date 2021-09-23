@@ -559,20 +559,16 @@ class Report:
 
         print('Joueurs du tournois ' + file + ' :\n')
 
-        # getting the list of stored finish tournaments
-        if glob(self.main_folder + '*.json'):
-            for files in glob(self.main_folder + '*.json'):
-                strip_file_name = re.search('(?<=Terminés/).*?(?=.json)',
-                                            files).group()
-                tournament_list.append(strip_file_name)
-        else:
-            input('Aucuns tournois terminés enregistrés, Appuyez sur <Entrée>'
-                  ' pour revenir au menu précédent.')
+        # getting players serialized infos
+        for player in sel_tournament.players_table:
+            family_name = player['family_name']
+            name = player['name']
+            print(family_name + ', ' + name)
+        del sel_tournament
 
         # allow the program to wait for a user input to display the previous
         # menu
         input('\n Appuyez sur <Entrée> pour retourner au menu.')
-        # return
 
     def tournament_rounds(self, file):
         """
@@ -630,7 +626,6 @@ class Report:
         # allow the program to wait for a user input to display the previous
         # menu
         input('\n Appuyez sur <Entrée> pour retourner au menu.')
-        return
 
     def tournament_matchs(self, file):
         """
@@ -673,4 +668,3 @@ class Report:
         del sel_tournament
 
         input('\n Appuyez sur <Entrée> pour retourner au menu.')
-        return
