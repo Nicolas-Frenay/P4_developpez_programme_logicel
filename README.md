@@ -10,11 +10,18 @@ Vous trouverez deux branches sur github :
 
 La branche "master" comporte le projet final.
 
-La branche "with_json_loading" comporte 2 fichiers *.json supplémentaires, joueurs.json et tournois.json.
-Ils servent a charger plus simplement les informations d'un tournois et de joueurs, pour faciliter les testes. Le code 
-du projet final est toujours present, mais commenté, et quelques instructions ont été rajoutées pour charger les 
-informations
-depuis les fichiers *.json.
+La branche "with_json_loading" comporte des fichiers supplémentaires.
+
+Joueurs.json et tournois.json servent à charger plus simplement les informations d'un tournois et de joueurs, pour 
+faciliter les testes.
+
+Le code du projet final est toujours present, mais commenté, et quelques instructions ont été rajoutées pour charger les 
+informations depuis les fichiers *.json.
+
+Le dossier Tournois contient 2 dossiers : interrpompus et terminés. Interrompus contient le fichier *.json d'un tournois
+ non terminé, et Terminés contient le fichier d'un tournois complet. Ils servent pour faciliter les testes de generation
+ de rapports.
+
 
 
 ## Instructions :
@@ -46,6 +53,17 @@ depuis les fichiers *.json.
 
 7)Pour fermer l'environnement virtuel :
 - Dans le terminal, tapez : ```deactivate ```
+
+
+## Validation Flak8 :
+- Depuis le terminal, rendez vous dans votre dossier de travail.
+- Tappez ```flake8 --format=html --htmldir=flake-report```
+- Dans le dossier flake-report nouvellement créé, lancer index.html dans votre navigateur pour voir le rapport d'erreur.
+
+(Attention, flake fera un rapport de tous les fichiers presents dans le dossier, y compris ceux du dossier ENV, je 
+conseille de copier les seuls fichiers à analyser dans un dossier à part, et de lancer l'analyse depuis celui-ci, afin 
+d'eviter des rapport sur des fichiers "non-python").
+
 
 
 ## Utilisation :
