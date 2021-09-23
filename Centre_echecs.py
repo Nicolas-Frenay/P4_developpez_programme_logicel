@@ -329,7 +329,6 @@ class Menus:
         returns : None
         """
         tournament_list = []
-        # TODO : remplacer glob
         for files in glob('Tournois/Interrompus/*.json'):
             tournament_displayed = re.search('(?<=Interrompus/).*?(?=.json)',
                                              files).group()
