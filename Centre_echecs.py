@@ -412,27 +412,33 @@ class Menus:
         tournament_list = []
         folder = 'Tournois/Terminés/'
 
-        for files in glob(folder + '*.json'):
-            tournament_list.append(files[18:-5])
+        if glob(folder + '*.json'):
+            for files in glob(folder + '*.json'):
+                tournament_list.append(files[18:-5])
 
-        if tournaments:
-            menu = SelectionMenu(tournament_list, 'Centre échecs',
-                                 'Liste de tournois términés')
-            menu.show()
+            if tournaments:
+                menu = SelectionMenu(tournament_list, 'Centre échecs',
+                                     'Liste de tournois terminés')
+                menu.show()
 
+            else:
+                sel = SelectionMenu.get_selection(tournament_list,
+                                                  'Centre échecs',
+                                                  'Pour quel tournois '
+                                                  'souhaitez vous générer un '
+                                                  'rapport ?')
+
+                if players:
+                    self.report.tournament_players(tournament_list[sel])
+
+                elif rounds:
+                    self.report.tournament_rounds(tournament_list[sel])
+
+                elif matchs:
+                    self.report.tournament_matchs(tournament_list[sel])
         else:
-            sel = SelectionMenu.get_selection(tournament_list, 'Centre échecs',
-                                              'Pour quel tournois souhaitez '
-                                              'vous générer un rapport ?')
-
-            if players:
-                self.report.tournament_players(tournament_list[sel])
-
-            elif rounds:
-                self.report.tournament_rounds(tournament_list[sel])
-
-            elif matchs:
-                self.report.tournament_matchs(tournament_list[sel])
+            input('Aucuns tournois terminés enregistrés, Appuyez sur <Entrée>'
+                  ' pour revenir au menu précédent.')
 
 
 if __name__ == '__main__':

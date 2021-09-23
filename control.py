@@ -521,10 +521,14 @@ class Report:
         actors_list = []
 
         # geting the list of stored finish tournaments
-        for files in glob(self.main_folder + '*.json'):
-            strip_file_name = re.search('(?<=Terminés/).*?(?=.json)',
-                                        files).group()
-            tournament_list.append(strip_file_name)
+        if glob(self.main_folder + '*.json'):
+            for files in glob(self.main_folder + '*.json'):
+                strip_file_name = re.search('(?<=Terminés/).*?(?=.json)',
+                                            files).group()
+                tournament_list.append(strip_file_name)
+        else:
+            input('Aucuns tournois terminés enregistrés, Appuyez sur <Entrée>'
+                  ' pour revenir au menu précédent.')
 
         # looping through each stored tournaments to extract players list, then
         # adding them in actors_list as dictionaries
