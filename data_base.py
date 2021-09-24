@@ -33,16 +33,14 @@ class TournamentData:
         if not resume:
             self.name = name.replace(' ', '_')
             if finish:
-                self.db = TinyDB(
-                    'Tournois/Terminés/' + self.name + '.json',
-                    indent=4)
+                self.db = TinyDB('Tournois/Terminés/' + self.name + '.json',
+                                 indent=4)
                 if path.exists('Tournois/Interrompus/' + self.name + '.json'):
                     remove('Tournois/Interrompus/' + self.name + '.json')
 
             else:
-                self.db = TinyDB(
-                    'Tournois/Interrompus/'
-                    + self.name + '.json', indent=4)
+                self.db = TinyDB('Tournois/Interrompus/' + self.name
+                                 + '.json', indent=4)
             self.players_table = self.db.table('Joueurs')
             self.tournaments_table = self.db.table('Tournois')
         else:

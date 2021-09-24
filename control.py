@@ -79,6 +79,14 @@ class Tournois:
         -nb_of_players : int, default 8.
         return : None
         """
+        # for i in range(0, nb_of_players):
+        #     ident = i
+        #     family_name = input('Nom de famille du joueur {} ?'.format(i+1))
+        #     name = input('Prénom du joueur {} ?'.format(i+1))
+        #     dob = input('Date de naissance du joueur {} (DD/MM/YYYY) ?'
+        #                 .format(i+1))
+        #     sex = input('Sex du joueur {} (H/F) ?'.format(i+1))
+        #     rank = int(input('Classement du joueur {} ?'.format(i+1)))
 
         # # bit of code for testing purposes, it loads players info from json
         # # file.
@@ -126,9 +134,8 @@ class Tournois:
         players_list = sorted(self.players, key=attrgetter('rank'),
                               reverse=True)
         for i in range(0, len(players_list) // 2):
-            start_round_list.append(
-                [players_list[i],
-                 players_list[i + len(players_list) // 2]])
+            start_round_list.append([players_list[i],
+                                     players_list[i + len(players_list) // 2]])
         return start_round_list
 
     def next_round(self):
@@ -250,8 +257,7 @@ class Tournois:
         time_start = rounds.time_start
         time_end = rounds.time_end
         matchs = rounds.saved_matches
-        round_to_save = {'name': name, 'results': results,
-                         'matchs': matchs,
+        round_to_save = {'name': name, 'results': results, 'matchs': matchs,
                          'time_start': time_start, 'time_end': time_end}
 
         return round_to_save
@@ -489,11 +495,9 @@ class Joueurs:
         params : None
         return : None
         """
-        serialize_p = {'ident': self.ident,
-                       'family_name': self.family_name,
-                       'name': self.name, 'dob': self.dob,
-                       'sex': self.sex, 'rank': self.rank,
-                       'points': self.points}
+        serialize_p = {'ident': self.ident, 'family_name': self.family_name,
+                       'name': self.name, 'dob': self.dob, 'sex': self.sex,
+                       'rank': self.rank, 'points': self.points}
         return serialize_p
 
 
@@ -550,8 +554,7 @@ class Report:
         actors_rank = sorted(actors_list, key=itemgetter('rank'),
                              reverse=True)
 
-        print(
-            'Ensemble des joueurs enregistrés (par ordre alphabetique) : \n')
+        print('Ensemble des joueurs enregistrés (par ordre alphabetique) : \n')
         for actors in actors_name:
             actor_name = actors['family_name'] + ', ' + actors['name']
             print(actor_name)
@@ -560,9 +563,8 @@ class Report:
 
         print('Ensemble des joueurs enregistrés (par classement) :\n')
         for actors in actors_rank:
-            actor_rank = (
-                    str(actors['rank']) + ' : ' + actors['family_name']
-                    + ', ' + actors['name'])
+            actor_rank = (str(actors['rank']) + ' : ' + actors['family_name']
+                          + ', ' + actors['name'])
             print(actor_rank)
 
         # allow the program to wait for a user input to display the previous
@@ -591,7 +593,6 @@ class Report:
         # allow the program to wait for a user input to display the previous
         # menu
         input('\n Appuyez sur <Entrée> pour retourner au menu.')
-        # return
 
     def tournament_rounds(self, file):
         """
@@ -649,7 +650,6 @@ class Report:
         # allow the program to wait for a user input to display the previous
         # menu
         input('\n Appuyez sur <Entrée> pour retourner au menu.')
-        return
 
     def tournament_matchs(self, file):
         """
@@ -692,4 +692,3 @@ class Report:
         del sel_tournament
 
         input('\n Appuyez sur <Entrée> pour retourner au menu.')
-        return
