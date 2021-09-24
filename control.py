@@ -75,8 +75,8 @@ class Tournois:
             sex = input('Sex du joueur {} (H/F) ?'.format(i+1))
             rank = int(input('Classement du joueur {} ?'.format(i+1)))
 
-            self.players.append(
-                Joueurs(ident, family_name, name, dob, sex, rank))
+            self.players.append(Joueurs(ident, family_name, name, dob, sex,
+                                        rank))
 
         first_round = self.first_round()
         self.create_round(first_round)
