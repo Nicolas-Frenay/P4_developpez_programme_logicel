@@ -356,29 +356,28 @@ class Menus:
         """
         self.report = Report()
 
-        # Arguments list to be sent to the sel_tournament methode, so it calls
-        # the proper Report method
-        args_list = [[True, False, False, False], [False, True, False, False],
-                     [False, False, True, False], [False, False, False, True]]
         report_menu = ConsoleMenu('Centre échecs', 'menu de rapport')
 
         show_all_actors = FunctionItem('Voir tout les acteurs',
                                        self.report.all_players,
                                        menu=report_menu)
 
-        show_all_tournament = FunctionItem('Voir tout les tournois términés',
+        show_all_tournament = FunctionItem('Voir tout les tournois terminés',
                                            self.sel_tournament,
-                                           args=args_list[3])
+                                           args=(False, False, False, True))
 
-        show_all_t_players = FunctionItem(
-            "Voir tout les joueurs d'un tournois",
-            self.sel_tournament, args=args_list[0], menu=report_menu)
+        show_all_t_players = FunctionItem("Voir les joueurs d'un tournois",
+                                          self.sel_tournament,
+                                          args=(True, False, False, False),
+                                          menu=report_menu)
 
         show_t_rounds = FunctionItem('Voir les rounds d\'un tournois',
-                                     self.sel_tournament, args=args_list[1])
+                                     self.sel_tournament,
+                                     args=(False, True, False, False))
 
         show_t_results = FunctionItem('Voir les resultats d\' un tournois',
-                                      self.sel_tournament, args=args_list[2])
+                                      self.sel_tournament,
+                                      args=(False, False, True, False))
 
         report_menu.append_item(show_all_actors)
         report_menu.append_item(show_all_tournament)
